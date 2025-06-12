@@ -19,21 +19,27 @@ export const Game: React.FC = () => {
 
   const [showLifeGained, setShowLifeGained] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [purchasedLives, setPurchasedLives] = useState(0);
 
-  // Check for success page with lives parameter
+  // Check for payment success with lives parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const livesParam = urlParams.get("lives");
+    const paymentSuccess = urlParams.get("payment_success");
 
-    if (livesParam && window.location.pathname === "/success") {
+    if (livesParam && paymentSuccess === "true") {
       const livesToAdd = parseInt(livesParam, 10);
       if (livesToAdd > 0) {
         setGameState((prev) => ({
           ...prev,
           lives: prev.lives + livesToAdd,
         }));
+        setPurchasedLives(livesToAdd);
         setShowSuccessMessage(true);
-        setTimeout(() => setShowSuccessMessage(false), 3000);
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+          setPurchasedLives(0);
+        }, 5000);
 
         // Clean up URL
         window.history.replaceState({}, document.title, "/");
@@ -386,8 +392,15 @@ export const Game: React.FC = () => {
       {/* Success Message */}
       {showSuccessMessage && (
         <div className="fixed top-8 right-8 z-50">
-          <div className="bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl animate-pulse">
-            <span className="font-bold">Lives added successfully!</span>
+          <div className="bg-green-600 text-white px-8 py-4 rounded-xl shadow-2xl animate-pulse">
+            <div className="flex items-center">
+              <Heart className="w-6 h-6 mr-2" />
+              <span className="font-bold">
+                {purchasedLives > 0
+                  ? `+${purchasedLives} lives purchased successfully!`
+                  : "Lives added successfully!"}
+              </span>
+            </div>
           </div>
         </div>
       )}
