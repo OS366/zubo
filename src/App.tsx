@@ -17,7 +17,7 @@ function App() {
           rel="noopener noreferrer"
           className="fixed top-4 right-4 z-50 flex flex-col items-center group"
         >
-          <img src={boltLogo} alt="Made in Bolt" className="w-8 h-8"/>
+          <img src={boltLogo} alt="Made in Bolt" className="w-16 h-16"/>
           <span className="text-xs text-gray-300 mt-1 bg-black/70 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Made in Bolt</span>
         </a>
         <nav className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
