@@ -1,5 +1,6 @@
 import { Question } from '../types';
 
+// First 50 questions (25 tough timed, 25 regular)
 export const questionPool: Question[] = [
   // Logical Reasoning Questions
   {
@@ -544,10 +545,241 @@ export const questionPool: Question[] = [
     answer: 3,
     type: 'logical',
     timed: true
-  }
+  },
+
+  // Tough Timed Questions (25 total)
+  {
+    id: 56,
+    text: "If a train travels at 60 mph for 2.5 hours, then at 40 mph for 1.5 hours, what's its average speed?",
+    options: ["48 mph", "50 mph", "52 mph", "54 mph"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 57,
+    text: "In a group of 100 people, 60 speak English, 40 speak French, and 20 speak both. How many speak neither?",
+    options: ["10", "15", "20", "25"],
+    answer: 2,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 58,
+    text: "A company's profit margin increased by 20% in Q1, decreased by 15% in Q2, and increased by 25% in Q3. What's the net change?",
+    options: ["27.5% increase", "30% increase", "32.5% increase", "35% increase"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 59,
+    text: "What's the next number in the sequence: 2, 3, 5, 9, 17, 33, ?",
+    options: ["49", "57", "65", "73"],
+    answer: 2,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 60,
+    text: "If a rectangle's area is 120 and its perimeter is 46, what are its dimensions?",
+    options: ["8x15", "10x12", "6x20", "5x24"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 61,
+    text: "A password must contain 3 letters and 2 numbers. How many possible combinations if letters can be repeated but numbers cannot?",
+    options: ["1,404,000", "1,560,000", "1,757,600", "1,872,000"],
+    answer: 2,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 62,
+    text: "What's the probability of rolling a sum of 7 with two dice?",
+    options: ["1/6", "1/8", "1/9", "1/12"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 63,
+    text: "If a triangle has sides of length 7, 24, and 25, what's its area?",
+    options: ["84", "96", "108", "120"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 64,
+    text: "What's the next term in the sequence: 1, 2, 6, 24, 120, ?",
+    options: ["480", "600", "720", "840"],
+    answer: 2,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 65,
+    text: "A clock shows 3:15. What's the angle between the hour and minute hands?",
+    options: ["7.5°", "8.5°", "9.5°", "10.5°"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 66,
+    text: "If a cube's volume is 343 cubic units, what's its surface area?",
+    options: ["196", "216", "236", "256"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 67,
+    text: "What's the sum of all prime numbers between 20 and 40?",
+    options: ["120", "132", "144", "156"],
+    answer: 1,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 68,
+    text: "A car travels 200 miles in 3 hours. If it maintains the same speed, how long will it take to travel 350 miles?",
+    options: ["4.5 hours", "5 hours", "5.25 hours", "5.5 hours"],
+    answer: 2,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 69,
+    text: "What's the next number in the sequence: 1, 4, 9, 16, 25, 36, ?",
+    options: ["49", "64", "81", "100"],
+    answer: 0,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 70,
+    text: "If a rectangle's diagonal is 13 units and one side is 5 units, what's its area?",
+    options: ["30", "40", "50", "60"],
+    answer: 2,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 71,
+    text: "What's the probability of drawing two aces from a deck of cards without replacement?",
+    options: ["1/221", "1/169", "1/132", "1/104"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 72,
+    text: "If a sphere's volume is 288π cubic units, what's its surface area?",
+    options: ["144π", "169π", "196π", "225π"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 73,
+    text: "What's the next term in the sequence: 2, 5, 10, 17, 26, ?",
+    options: ["35", "37", "39", "41"],
+    answer: 1,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 74,
+    text: "A triangle has angles in ratio 2:3:4. What's the measure of the largest angle?",
+    options: ["60°", "70°", "80°", "90°"],
+    answer: 2,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 75,
+    text: "What's the sum of the infinite geometric series: 1 + 1/2 + 1/4 + 1/8 + ...?",
+    options: ["1", "2", "3", "4"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 76,
+    text: "If a circle's area is 64π square units, what's its circumference?",
+    options: ["8π", "12π", "16π", "20π"],
+    answer: 2,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 77,
+    text: "What's the next number in the sequence: 1, 3, 6, 10, 15, 21, ?",
+    options: ["28", "30", "32", "34"],
+    answer: 0,
+    type: 'logical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 78,
+    text: "A right triangle has legs of 7 and 24 units. What's its inradius?",
+    options: ["3", "4", "5", "6"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 79,
+    text: "What's the probability of rolling a sum of 8 with three dice?",
+    options: ["5/72", "7/72", "9/72", "11/72"],
+    answer: 1,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+  {
+    id: 80,
+    text: "If a cube's surface area is 150 square units, what's its volume?",
+    options: ["125", "150", "175", "200"],
+    answer: 0,
+    type: 'analytical',
+    timed: true,
+    difficulty: 'tough'
+  },
+
+  // Additional Regular Questions (to reach 100)
+  // ... Add more regular questions here ...
 ];
 
-export function getRandomQuestions(count: number = 100): Question[] {
+// Function to get random questions for the main game (50 questions)
+export function getRandomQuestions(count: number = 50): Question[] {
   // Enhanced randomization using Fisher-Yates shuffle algorithm
   const questions = [...questionPool];
   
@@ -557,5 +789,46 @@ export function getRandomQuestions(count: number = 100): Question[] {
     [questions[i], questions[j]] = [questions[j], questions[i]];
   }
   
-  return questions.slice(0, Math.min(count, questionPool.length));
+  // Ensure we have at least 25 tough timed questions in the first 50
+  const toughQuestions = questions.filter(q => q.difficulty === 'tough');
+  const regularQuestions = questions.filter(q => q.difficulty !== 'tough');
+  
+  // Take 25 tough questions and 25 regular questions
+  const selectedTough = toughQuestions.slice(0, 25);
+  const selectedRegular = regularQuestions.slice(0, 25);
+  
+  // Combine and shuffle again
+  const selectedQuestions = [...selectedTough, ...selectedRegular];
+  for (let i = selectedQuestions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+  }
+  
+  return selectedQuestions;
+}
+
+// Function to get additional 50 questions for the challenge round
+export function getChallengeQuestions(): Question[] {
+  const questions = [...questionPool];
+  
+  // Get questions that weren't used in the main game
+  const usedQuestionIds = new Set(questions.map(q => q.id));
+  const remainingQuestions = questions.filter(q => !usedQuestionIds.has(q.id));
+  
+  // Ensure we have 25 tough and 25 regular questions
+  const toughQuestions = remainingQuestions.filter(q => q.difficulty === 'tough');
+  const regularQuestions = remainingQuestions.filter(q => q.difficulty !== 'tough');
+  
+  // Take 25 of each type
+  const selectedTough = toughQuestions.slice(0, 25);
+  const selectedRegular = regularQuestions.slice(0, 25);
+  
+  // Combine and shuffle
+  const selectedQuestions = [...selectedTough, ...selectedRegular];
+  for (let i = selectedQuestions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+  }
+  
+  return selectedQuestions;
 }

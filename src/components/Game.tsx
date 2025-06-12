@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
-import { GameState, Question } from "../types";
-import { getRandomQuestions } from "../data/questions";
+import { LeaderboardForm } from "./LeaderboardForm";
+import { GameState, Question, LeaderboardFormData } from "../types";
+import { getRandomQuestions, getChallengeQuestions } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
+import { saveLeaderboardEntry } from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
 
 export const Game: React.FC = () => {
@@ -15,11 +17,16 @@ export const Game: React.FC = () => {
     answeredQuestions: 0,
     personaScores: {},
     gameStatus: "menu",
+    isChallengeRound: false,
+    leaderboardEligible: false
   });
 
   const [showLifeGained, setShowLifeGained] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [purchasedLives, setPurchasedLives] = useState(0);
+  const [gameStartTime, setGameStartTime] = useState<Date | null>(null);
+  const [leaderboardSaved, setLeaderboardSaved] = useState(false);
+  const [savingToLeaderboard, setSavingToLeaderboard] = useState(false);
 
   // Debug: Log game state changes
   useEffect(() => {
@@ -135,22 +142,43 @@ export const Game: React.FC = () => {
   }, []);
 
   const startGame = useCallback(() => {
-    const questions = getRandomQuestions(100);
+    const questions = getRandomQuestions(50); // Get 50 random questions
     setGameState({
       currentQuestionIndex: 0,
       score: 0,
-      lives: gameState.lives, // Preserve current lives
+      lives: 3,
       questions,
       answeredQuestions: 0,
       personaScores: {},
       gameStatus: "playing",
+      isChallengeRound: false,
+      leaderboardEligible: false
     });
-  }, [gameState.lives]);
+    setGameStartTime(new Date());
+    setLeaderboardSaved(false);
+  }, []);
+
+  const startChallengeRound = useCallback(() => {
+    const questions = getChallengeQuestions(); // Get 50 challenge questions
+    setGameState(prev => ({
+      ...prev,
+      currentQuestionIndex: 0,
+      score: 0,
+      lives: 3,
+      questions,
+      answeredQuestions: 0,
+      personaScores: {},
+      gameStatus: "playing",
+      isChallengeRound: true,
+      leaderboardEligible: false
+    }));
+    setGameStartTime(new Date());
+    setLeaderboardSaved(false);
+  }, []);
 
   const handleAnswer = useCallback(
     (answerIndex: number) => {
-      const currentQuestion =
-        gameState.questions[gameState.currentQuestionIndex];
+      const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
       let isCorrect = false;
       let loseLife = false;
 
@@ -171,9 +199,7 @@ export const Game: React.FC = () => {
 
         // Update persona scores for weighted questions
         if (currentQuestion.type === "weighted" && currentQuestion.weights) {
-          const selectedOption = Object.keys(currentQuestion.weights)[
-            answerIndex
-          ];
+          const selectedOption = Object.keys(currentQuestion.weights)[answerIndex];
           if (selectedOption) {
             setGameState((prev) => ({
               ...prev,
@@ -193,6 +219,7 @@ export const Game: React.FC = () => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
         const newAnsweredQuestions = prev.answeredQuestions + 1;
+        const newLeaderboardEligible = newAnsweredQuestions >= 25 || prev.leaderboardEligible;
 
         // Random life gain (10% chance on correct answers)
         let finalLives = newLives;
@@ -210,16 +237,18 @@ export const Game: React.FC = () => {
             lives: finalLives,
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "failure",
+            leaderboardEligible: newLeaderboardEligible
           };
         }
 
-        if (newAnsweredQuestions >= 100) {
+        if (newAnsweredQuestions >= 50) {
           return {
             ...prev,
             score: newScore,
             lives: finalLives,
             answeredQuestions: newAnsweredQuestions,
-            gameStatus: newScore >= 75 ? "success" : "failure",
+            gameStatus: "success",
+            leaderboardEligible: newLeaderboardEligible
           };
         }
 
@@ -229,6 +258,7 @@ export const Game: React.FC = () => {
           score: newScore,
           lives: finalLives,
           answeredQuestions: newAnsweredQuestions,
+          leaderboardEligible: newLeaderboardEligible
         };
       });
     },
@@ -270,7 +300,23 @@ export const Game: React.FC = () => {
       answeredQuestions: 0,
       personaScores: {},
       gameStatus: "menu",
+      isChallengeRound: false,
+      leaderboardEligible: false
     });
+  };
+
+  const handleLeaderboardSubmit = async (formData: LeaderboardFormData) => {
+    try {
+      setSavingToLeaderboard(true);
+      const topPersona = calculatePersona(gameState.personaScores);
+      await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime);
+      setLeaderboardSaved(true);
+    } catch (error) {
+      console.error('Failed to save to leaderboard:', error);
+      throw error; // Let the form component handle the error
+    } finally {
+      setSavingToLeaderboard(false);
+    }
   };
 
   // Menu Screen
@@ -357,11 +403,11 @@ export const Game: React.FC = () => {
           <div className="mb-8">
             <div className="text-6xl mb-4">🎉</div>
             <h1 className="text-5xl font-bold text-white mb-4">
-              Congratulations!
+              {gameState.isChallengeRound ? "Challenge Complete!" : "Congratulations!"}
             </h1>
             <p className="text-xl text-gray-300 mb-8">
-              You've successfully completed the Zubo challenge with a score of{" "}
-              {gameState.score}/100!
+              You've completed {gameState.isChallengeRound ? "the challenge round" : "the main game"} with a score of{" "}
+              {gameState.score}/50!
             </p>
           </div>
 
@@ -385,7 +431,46 @@ export const Game: React.FC = () => {
             </div>
           </div>
 
+          {!leaderboardSaved && gameState.leaderboardEligible ? (
+            <div className="mb-8">
+              <LeaderboardForm
+                onSubmit={handleLeaderboardSubmit}
+                isLoading={savingToLeaderboard}
+                gameResult="success"
+                score={gameState.score}
+                isChallengeRound={gameState.isChallengeRound}
+                reachedThreshold={gameState.answeredQuestions >= 25}
+              />
+            </div>
+          ) : leaderboardSaved ? (
+            <div className="bg-green-900/50 border border-green-700 rounded-2xl p-6 mb-8">
+              <div className="text-green-400 text-xl font-bold mb-2">
+                Score Saved to Leaderboard!
+              </div>
+              <p className="text-gray-300">
+                Your achievement has been recorded. Check the leaderboard to see your ranking!
+              </p>
+            </div>
+          ) : (
+            <div className="bg-yellow-900/50 border border-yellow-700 rounded-2xl p-6 mb-8">
+              <div className="text-yellow-400 text-xl font-bold mb-2">
+                Keep Going!
+              </div>
+              <p className="text-gray-300">
+                Answer more questions to be eligible for the leaderboard!
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-4 justify-center">
+            {!gameState.isChallengeRound ? (
+              <button
+                onClick={startChallengeRound}
+                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+              >
+                Start Challenge Round
+              </button>
+            ) : null}
             <button
               onClick={resetGame}
               className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
@@ -409,7 +494,7 @@ export const Game: React.FC = () => {
             <p className="text-xl text-gray-300 mb-8">
               {gameState.lives <= 0
                 ? "You've run out of lives! Don't give up - try again or visit the store for more lives."
-                : `You scored ${gameState.score}/100. You need at least 75 to succeed. Keep trying!`}
+                : `You scored ${gameState.score}/50. You need at least 25 questions answered to be eligible for the leaderboard.`}
             </p>
           </div>
 
@@ -438,6 +523,37 @@ export const Game: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {!leaderboardSaved && gameState.leaderboardEligible ? (
+            <div className="mb-8">
+              <LeaderboardForm
+                onSubmit={handleLeaderboardSubmit}
+                isLoading={savingToLeaderboard}
+                gameResult="failure"
+                score={gameState.score}
+                isChallengeRound={gameState.isChallengeRound}
+                reachedThreshold={gameState.answeredQuestions >= 25}
+              />
+            </div>
+          ) : leaderboardSaved ? (
+            <div className="bg-green-900/50 border border-green-700 rounded-2xl p-6 mb-8">
+              <div className="text-green-400 text-xl font-bold mb-2">
+                Score Saved to Leaderboard!
+              </div>
+              <p className="text-gray-300">
+                Your progress has been recorded. Keep playing to improve your score!
+              </p>
+            </div>
+          ) : (
+            <div className="bg-yellow-900/50 border border-yellow-700 rounded-2xl p-6 mb-8">
+              <div className="text-yellow-400 text-xl font-bold mb-2">
+                Keep Going!
+              </div>
+              <p className="text-gray-300">
+                Answer more questions to be eligible for the leaderboard!
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-4 justify-center flex-wrap">
             {gameState.lives > 0 && gameState.questions.length > 0 ? (
@@ -468,48 +584,6 @@ export const Game: React.FC = () => {
                   className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
                 >
                   Get More Lives
-                </button>
-                <button
-                  onClick={() => {
-                    console.log("Manual test: Adding 5 lives and respawning");
-                    setGameState((prev) => {
-                      const newLives = prev.lives + 5;
-                      console.log("Manual test state:", {
-                        oldLives: prev.lives,
-                        newLives,
-                        hasQuestions: prev.questions.length > 0,
-                        currentQuestion: prev.currentQuestionIndex + 1,
-                        gameStatus: prev.gameStatus,
-                      });
-                      return {
-                        ...prev,
-                        lives: newLives,
-                        gameStatus: "playing",
-                      };
-                    });
-                    // Show success message
-                    setPurchasedLives(5);
-                    setShowSuccessMessage(true);
-                    setTimeout(() => {
-                      setShowSuccessMessage(false);
-                      setPurchasedLives(0);
-                    }, 3000);
-                  }}
-                  className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  [TEST] Add 5 Lives + Respawn
-                </button>
-                <button
-                  onClick={() => {
-                    console.log("SIMPLE TEST: Just change to playing mode");
-                    setGameState((prev) => ({
-                      ...prev,
-                      gameStatus: "playing",
-                    }));
-                  }}
-                  className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  [SIMPLE] Just Respawn
                 </button>
               </>
             )}
