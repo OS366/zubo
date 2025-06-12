@@ -15,7 +15,7 @@ export const Store: React.FC<StoreProps> = ({ onBack, currentLevel = 0 }) => {
       popular: false,
       icon: Heart,
       color: "from-pink-500 to-rose-500",
-      priceId: "price_1RYx6PCN7EjYLzD1q08z3OCd", // Replace with actual Stripe Price ID
+      priceId: "price_1RYx6PCN7EjYLzD1q08z3OCd", // Replace with your actual Stripe Price ID for 5 lives/$3
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ export const Store: React.FC<StoreProps> = ({ onBack, currentLevel = 0 }) => {
       popular: true,
       icon: Zap,
       color: "from-purple-500 to-indigo-500",
-      priceId: "price_1RYx7PCN7EjYLzD1Tg6uzNus", // Replace with actual Stripe Price ID
+      priceId: "price_1RYx7PCN7EjYLzD1Tg6uzNus", // Replace with your actual Stripe Price ID for 10 lives/$5
     },
     {
       id: 3,
@@ -33,7 +33,7 @@ export const Store: React.FC<StoreProps> = ({ onBack, currentLevel = 0 }) => {
       popular: false,
       icon: ShoppingCart,
       color: "from-green-500 to-emerald-500",
-      priceId: "price_1RYx86CN7EjYLzD1GRE5GU0E", // Replace with actual Stripe Price ID
+      priceId: "price_1RYx86CN7EjYLzD1GRE5GU0E", // Replace with your actual Stripe Price ID for 20 lives/$10
     },
   ];
 
