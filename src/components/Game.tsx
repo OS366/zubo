@@ -30,10 +30,21 @@ export const Game: React.FC = () => {
     if (livesParam && paymentSuccess === "true") {
       const livesToAdd = parseInt(livesParam, 10);
       if (livesToAdd > 0) {
-        setGameState((prev) => ({
-          ...prev,
-          lives: prev.lives + livesToAdd,
-        }));
+        setGameState((prev) => {
+          const newLives = prev.lives + livesToAdd;
+          // If user was in failure state due to no lives and now has lives, resume playing
+          const shouldResume =
+            prev.gameStatus === "failure" &&
+            prev.lives <= 0 &&
+            newLives > 0 &&
+            prev.questions.length > 0;
+
+          return {
+            ...prev,
+            lives: newLives,
+            gameStatus: shouldResume ? "playing" : prev.gameStatus,
+          };
+        });
         setPurchasedLives(livesToAdd);
         setShowSuccessMessage(true);
         setTimeout(() => {
@@ -153,7 +164,25 @@ export const Game: React.FC = () => {
   };
 
   const closeStore = () => {
-    setGameState((prev) => ({ ...prev, gameStatus: "playing" }));
+    setGameState((prev) => {
+      // If user has lives and an active game, return to playing; otherwise go to failure screen
+      const hasActiveGame = prev.questions.length > 0;
+      const hasLives = prev.lives > 0;
+
+      if (hasActiveGame && hasLives) {
+        return { ...prev, gameStatus: "playing" };
+      } else if (hasActiveGame && !hasLives) {
+        return { ...prev, gameStatus: "failure" };
+      } else {
+        return { ...prev, gameStatus: "menu" };
+      }
+    });
+  };
+
+  const respawnGame = () => {
+    if (gameState.lives > 0 && gameState.questions.length > 0) {
+      setGameState((prev) => ({ ...prev, gameStatus: "playing" }));
+    }
   };
 
   const resetGame = () => {
@@ -233,7 +262,12 @@ export const Game: React.FC = () => {
 
   // Store Screen
   if (gameState.gameStatus === "store") {
-    return <Store onBack={closeStore} />;
+    return (
+      <Store
+        onBack={closeStore}
+        currentLevel={gameState.currentQuestionIndex + 1}
+      />
+    );
   }
 
   // Success Screen
@@ -329,19 +363,38 @@ export const Game: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={resetGame}
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-            >
-              Try Again
-            </button>
-            <button
-              onClick={openStore}
-              className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-            >
-              Get More Lives
-            </button>
+          <div className="flex gap-4 justify-center flex-wrap">
+            {gameState.lives > 0 && gameState.questions.length > 0 ? (
+              <>
+                <button
+                  onClick={respawnGame}
+                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  Respawn (Question {gameState.currentQuestionIndex + 1})
+                </button>
+                <button
+                  onClick={resetGame}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  Start Over
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={resetGame}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={openStore}
+                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  Get More Lives
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
