@@ -27,9 +27,21 @@ export const Game: React.FC = () => {
     const livesParam = urlParams.get("lives");
     const paymentSuccess = urlParams.get("payment_success");
 
+    console.log("Checking URL params:", {
+      livesParam,
+      paymentSuccess,
+      currentStatus: gameState.gameStatus,
+    });
+
     if (livesParam && paymentSuccess === "true") {
       const livesToAdd = parseInt(livesParam, 10);
       if (livesToAdd > 0) {
+        console.log("Processing payment success:", {
+          livesToAdd,
+          currentLives: gameState.lives,
+          currentStatus: gameState.gameStatus,
+        });
+
         setGameState((prev) => {
           const newLives = prev.lives + livesToAdd;
           // If user was in failure state due to no lives and now has lives, resume playing
@@ -38,6 +50,14 @@ export const Game: React.FC = () => {
             prev.lives <= 0 &&
             newLives > 0 &&
             prev.questions.length > 0;
+
+          console.log("State update decision:", {
+            oldLives: prev.lives,
+            newLives,
+            shouldResume,
+            hasQuestions: prev.questions.length > 0,
+            currentQuestion: prev.currentQuestionIndex + 1,
+          });
 
           return {
             ...prev,
@@ -56,6 +76,58 @@ export const Game: React.FC = () => {
         window.history.replaceState({}, document.title, "/");
       }
     }
+  }, []); // Run once on mount
+
+  // Also check for URL parameters when window gains focus (user returns from Stripe)
+  useEffect(() => {
+    const handleFocus = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const livesParam = urlParams.get("lives");
+      const paymentSuccess = urlParams.get("payment_success");
+
+      if (livesParam && paymentSuccess === "true") {
+        const livesToAdd = parseInt(livesParam, 10);
+        if (livesToAdd > 0) {
+          console.log("Focus event - Processing payment success:", {
+            livesToAdd,
+          });
+
+          setGameState((prev) => {
+            const newLives = prev.lives + livesToAdd;
+            const shouldResume =
+              prev.gameStatus === "failure" &&
+              prev.lives <= 0 &&
+              newLives > 0 &&
+              prev.questions.length > 0;
+
+            console.log("Focus event - State update:", {
+              oldLives: prev.lives,
+              newLives,
+              shouldResume,
+              currentQuestion: prev.currentQuestionIndex + 1,
+            });
+
+            return {
+              ...prev,
+              lives: newLives,
+              gameStatus: shouldResume ? "playing" : prev.gameStatus,
+            };
+          });
+          setPurchasedLives(livesToAdd);
+          setShowSuccessMessage(true);
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+            setPurchasedLives(0);
+          }, 5000);
+
+          // Clean up URL
+          window.history.replaceState({}, document.title, "/");
+        }
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
   const startGame = useCallback(() => {
