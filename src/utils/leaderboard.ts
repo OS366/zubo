@@ -28,7 +28,9 @@ export const getLeaderboardEntries = async (): Promise<LeaderboardEntry[]> => {
       gameStatus: entry.game_status,
       persona: entry.persona || undefined,
       completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined
+      timeTaken: entry.time_taken || undefined,
+      isChallengeRound: entry.is_challenge_round ?? false,
+      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
     }));
   } catch (error) {
     handleSupabaseError(error);
@@ -45,7 +47,6 @@ export const saveLeaderboardEntry = async (
 ): Promise<LeaderboardEntry> => {
   try {
     const entry = {
-      id: generateId(),
       first_name: formData.firstName.trim(),
       last_name: formData.lastName.trim(),
       email: formData.email.trim().toLowerCase(),
@@ -77,7 +78,9 @@ export const saveLeaderboardEntry = async (
       gameStatus: data.game_status,
       persona: data.persona || undefined,
       completedAt: new Date(data.completed_at),
-      timeTaken: data.time_taken || undefined
+      timeTaken: data.time_taken || undefined,
+      isChallengeRound: data.is_challenge_round ?? false,
+      reachedLeaderboardThreshold: data.reached_leaderboard_threshold ?? false
     };
   } catch (error) {
     handleSupabaseError(error);
@@ -108,7 +111,9 @@ export const getTopEntries = async (limit: number = 10): Promise<LeaderboardEntr
       gameStatus: entry.game_status,
       persona: entry.persona || undefined,
       completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined
+      timeTaken: entry.time_taken || undefined,
+      isChallengeRound: entry.is_challenge_round ?? false,
+      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
     }));
   } catch (error) {
     handleSupabaseError(error);
@@ -138,7 +143,9 @@ export const getUserEntries = async (email: string): Promise<LeaderboardEntry[]>
       gameStatus: entry.game_status,
       persona: entry.persona || undefined,
       completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined
+      timeTaken: entry.time_taken || undefined,
+      isChallengeRound: entry.is_challenge_round ?? false,
+      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
     }));
   } catch (error) {
     handleSupabaseError(error);
