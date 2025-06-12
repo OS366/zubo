@@ -54,12 +54,9 @@ export const Game: React.FC = () => {
 
         setGameState((prev) => {
           const newLives = prev.lives + livesToAdd;
-          // If user was in failure state due to no lives and now has lives, resume playing
+          // Auto-respawn if in failure state and have active game
           const shouldResume =
-            prev.gameStatus === "failure" &&
-            prev.lives <= 0 &&
-            newLives > 0 &&
-            prev.questions.length > 0;
+            prev.gameStatus === "failure" && prev.questions.length > 0;
 
           console.log("State update decision:", {
             oldLives: prev.lives,
@@ -105,10 +102,7 @@ export const Game: React.FC = () => {
           setGameState((prev) => {
             const newLives = prev.lives + livesToAdd;
             const shouldResume =
-              prev.gameStatus === "failure" &&
-              prev.lives <= 0 &&
-              newLives > 0 &&
-              prev.questions.length > 0;
+              prev.gameStatus === "failure" && prev.questions.length > 0;
 
             console.log("Focus event - State update:", {
               oldLives: prev.lives,
