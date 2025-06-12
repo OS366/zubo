@@ -23,6 +23,10 @@ exports.handler = async (event, context) => {
     const origin = event.headers.origin || event.headers.host || 'https://your-app.netlify.app';
     const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
 
+    // Debug logging
+    const successUrl = `${baseUrl}/?payment_success=true&lives=${lives}&session_id={CHECKOUT_SESSION_ID}`;
+    console.log('Creating Stripe session with:', { baseUrl, successUrl, lives, currentLevel });
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -33,7 +37,7 @@ exports.handler = async (event, context) => {
         },
       ],
       mode: 'payment',
-      success_url: `${baseUrl}/?payment_success=true&lives=${lives}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
       cancel_url: `${baseUrl}/?payment_canceled=true`,
       metadata: {
         lives: lives.toString(),

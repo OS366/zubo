@@ -21,6 +21,16 @@ export const Game: React.FC = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [purchasedLives, setPurchasedLives] = useState(0);
 
+  // Debug: Log game state changes
+  useEffect(() => {
+    console.log("Game state changed:", {
+      gameStatus: gameState.gameStatus,
+      lives: gameState.lives,
+      currentQuestion: gameState.currentQuestionIndex + 1,
+      hasQuestions: gameState.questions.length > 0,
+    });
+  }, [gameState.gameStatus, gameState.lives, gameState.currentQuestionIndex]);
+
   // Check for payment success with lives parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -483,6 +493,13 @@ export const Game: React.FC = () => {
                         gameStatus: "playing",
                       };
                     });
+                    // Show success message
+                    setPurchasedLives(5);
+                    setShowSuccessMessage(true);
+                    setTimeout(() => {
+                      setShowSuccessMessage(false);
+                      setPurchasedLives(0);
+                    }, 3000);
                   }}
                   className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
                 >
