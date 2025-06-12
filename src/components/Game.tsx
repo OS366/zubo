@@ -465,6 +465,29 @@ export const Game: React.FC = () => {
                 >
                   Get More Lives
                 </button>
+                <button
+                  onClick={() => {
+                    console.log("Manual test: Adding 5 lives and respawning");
+                    setGameState((prev) => {
+                      const newLives = prev.lives + 5;
+                      console.log("Manual test state:", {
+                        oldLives: prev.lives,
+                        newLives,
+                        hasQuestions: prev.questions.length > 0,
+                        currentQuestion: prev.currentQuestionIndex + 1,
+                        gameStatus: prev.gameStatus,
+                      });
+                      return {
+                        ...prev,
+                        lives: newLives,
+                        gameStatus: "playing",
+                      };
+                    });
+                  }}
+                  className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  [TEST] Add 5 Lives + Respawn
+                </button>
               </>
             )}
           </div>
