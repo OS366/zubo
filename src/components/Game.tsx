@@ -505,6 +505,18 @@ export const Game: React.FC = () => {
                 >
                   [TEST] Add 5 Lives + Respawn
                 </button>
+                <button
+                  onClick={() => {
+                    console.log("SIMPLE TEST: Just change to playing mode");
+                    setGameState((prev) => ({
+                      ...prev,
+                      gameStatus: "playing",
+                    }));
+                  }}
+                  className="px-8 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  [SIMPLE] Just Respawn
+                </button>
               </>
             )}
           </div>
