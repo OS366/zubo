@@ -7,7 +7,7 @@ import { getRandomQuestions, getChallengeQuestions } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
 import { saveLeaderboardEntry } from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
-import logo from '../assets/logo.png';
+import logo from 'src/assets/logo.png';
 
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -220,7 +220,7 @@ export const Game: React.FC = () => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
         const newAnsweredQuestions = prev.answeredQuestions + 1;
-        const newLeaderboardEligible = newAnsweredQuestions >= 25 || prev.leaderboardEligible;
+        const newLeaderboardEligible = newAnsweredQuestions >= 5 || prev.leaderboardEligible;
 
         // Random life gain (10% chance on correct answers)
         let finalLives = newLives;
@@ -440,7 +440,7 @@ export const Game: React.FC = () => {
                 gameResult="success"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= 25}
+                reachedThreshold={gameState.answeredQuestions >= 5}
               />
             </div>
           ) : leaderboardSaved ? (
@@ -495,7 +495,7 @@ export const Game: React.FC = () => {
             <p className="text-xl text-gray-300 mb-8">
               {gameState.lives <= 0
                 ? "You've run out of lives! Don't give up - try again or visit the store for more lives."
-                : `You scored ${gameState.score}/50. You need at least 25 questions answered to be eligible for the leaderboard.`}
+                : `You scored ${gameState.score}/50. You need at least 5 questions answered to be eligible for the leaderboard.`}
             </p>
           </div>
 
@@ -533,7 +533,7 @@ export const Game: React.FC = () => {
                 gameResult="failure"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= 25}
+                reachedThreshold={gameState.answeredQuestions >= 5}
               />
             </div>
           ) : leaderboardSaved ? (
