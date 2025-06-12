@@ -7,7 +7,7 @@ import { getRandomQuestions, getChallengeQuestions } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
 import { saveLeaderboardEntry } from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
-import logo from 'src/assets/logo.png';
+import logo from '../assets/logo.png';
 
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
