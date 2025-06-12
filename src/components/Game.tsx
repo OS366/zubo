@@ -7,6 +7,7 @@ import { getRandomQuestions, getChallengeQuestions } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
 import { saveLeaderboardEntry } from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
+import logo from '../assets/logo.png';
 
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -309,7 +310,7 @@ export const Game: React.FC = () => {
     try {
       setSavingToLeaderboard(true);
       const topPersona = calculatePersona(gameState.personaScores);
-      await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime);
+      await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime ?? undefined);
       setLeaderboardSaved(true);
     } catch (error) {
       console.error('Failed to save to leaderboard:', error);
@@ -325,11 +326,11 @@ export const Game: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center p-4">
         <div className="text-center max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-7xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                Zubo
-              </span>
-            </h1>
+            <img
+              src={logo}
+              alt="Zubo Logo"
+              className="mx-auto mb-4 w-40 h-40 object-contain drop-shadow-xl"
+            />
             <p className="text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
               Discover your true persona through 100 thought-provoking
               questions. Challenge your mind and unlock the depths of your
