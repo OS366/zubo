@@ -14,7 +14,7 @@ const Home: React.FC = () => (
     <section>
       <h2 className="text-2xl font-bold mb-4 text-white">Privacy & Data Policy</h2>
       <p className="text-gray-200 mb-2">
-        We collect your first name, last name, and email address when you submit your score to the leaderboard. We also store your score, number of lives, questions answered, persona, avatar, and the number of easter eggs you found.
+        We collect your first name, last name, and email address when you submit your score to the leaderboard. We also store your score, number of lives, questions answered, persona, and avatar.
       </p>
       <p className="text-gray-400 mb-2">
         This data is used solely for displaying the leaderboard, sending you a congratulatory email, and improving the game experience. We do not sell or share your data with third parties. Your email is only used for leaderboard notifications and is never displayed publicly.

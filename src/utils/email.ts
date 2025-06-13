@@ -6,13 +6,11 @@ export async function sendLeaderboardEmail({
   firstName,
   avatarUrl,
   lives,
-  easterEggs,
 }: {
   to: string;
   firstName: string;
   avatarUrl: string;
   lives: number;
-  easterEggs: number;
 }) {
   // Example: Use fetch to call your email API endpoint
   // Replace this with your actual email sending logic
@@ -23,8 +21,7 @@ export async function sendLeaderboardEmail({
         <h2 style="margin: 0 0 8px 0;">Congratulations, ${firstName}!</h2>
         <p style="margin: 0 0 16px 0;">You made it to the Zubo Leaderboard 🎉</p>
         <div style="margin-bottom: 16px;">
-          <strong>Lives Remaining:</strong> ${lives}<br/>
-          <strong>Easter Eggs Found:</strong> ${easterEggs}
+          <strong>Lives Remaining:</strong> ${lives}
         </div>
         <p style="margin: 0 0 16px 0;">Thank you for playing Zubo and being part of our journey.<br/>— David Labs</p>
         <hr style="border: none; border-top: 1px solid #333; margin: 24px 0;" />

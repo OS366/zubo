@@ -69,7 +69,6 @@ export const Game: React.FC = () => {
   const [visualSurprise, setVisualSurprise] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [questionTimeLeft, setQuestionTimeLeft] = useState(60);
 
   const [sessionStart, setSessionStart] = useState<Date | null>(null);
   const [sessionEnd, setSessionEnd] = useState<Date | null>(null);
@@ -191,24 +190,6 @@ export const Game: React.FC = () => {
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
-
-  // Start/reset timer on question change
-  useEffect(() => {
-    setQuestionTimeLeft(60);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setQuestionTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(timerRef.current!);
-          handleAnswer(-1); // Auto-submit as incorrect
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.currentQuestionIndex]);
 
   const startGame = useCallback(() => {
     let questions = getRandomQuestions(50);
@@ -809,8 +790,6 @@ export const Game: React.FC = () => {
         totalQuestions={gameState.questions.length}
       />
 
-      {/* Timer */}
-      <div className="text-2xl font-bold text-yellow-400">Time Left: {questionTimeLeft}s</div>
       <DebugPanel gameState={gameState} />
     </div>
   );
