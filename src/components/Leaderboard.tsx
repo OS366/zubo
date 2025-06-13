@@ -198,15 +198,15 @@ export const Leaderboard: React.FC = () => {
           </div>
         )}
 
-        <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl overflow-x-auto">
-          <div className="grid grid-cols-12 gap-4 mb-4 text-gray-400 font-medium px-4 min-w-max">
-            <div className="col-span-1 text-center">#</div>
-            <div className="col-span-3">Player</div>
-            <div className="col-span-2 text-center">Score</div>
-            <div className="col-span-2 text-center">Persona</div>
-            <div className="col-span-2 text-center">Questions</div>
-            <div className="col-span-1 text-center">Date</div>
-            <div className="col-span-1 text-center flex items-center justify-center gap-1">
+        <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl">
+          {/* Header */}
+          <div className="grid grid-cols-7 gap-4 mb-4 text-gray-400 font-medium px-4">
+            <div className="text-center">#</div>
+            <div className="col-span-2">Player</div>
+            <div className="text-center">Score</div>
+            <div className="text-center">Persona</div>
+            <div className="text-center">Questions</div>
+            <div className="text-center flex items-center justify-center gap-1">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">Percentile</span>
               <span className="sm:hidden">%ile</span>
@@ -217,7 +217,7 @@ export const Leaderboard: React.FC = () => {
             {topEntries.map((entry, index) => (
               <div
                 key={entry.id}
-                className={`grid grid-cols-12 gap-4 items-center p-4 rounded-xl transition-colors min-w-max ${
+                className={`grid grid-cols-7 gap-4 items-center p-4 rounded-xl transition-colors ${
                   index === 0
                     ? "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30"
                     : index === 1
@@ -227,7 +227,8 @@ export const Leaderboard: React.FC = () => {
                     : "bg-gray-700/50 hover:bg-gray-700/70"
                 }`}
               >
-                <div className="col-span-1 text-center">
+                {/* Rank */}
+                <div className="text-center">
                   {index === 0 ? (
                     <Trophy className="w-6 h-6 text-yellow-400 mx-auto" />
                   ) : index === 1 ? (
@@ -238,39 +239,41 @@ export const Leaderboard: React.FC = () => {
                     <span className="text-gray-400">{index + 1}</span>
                   )}
                 </div>
-                <div className="col-span-3 flex items-center gap-3 min-w-0">
+
+                {/* Player */}
+                <div className="col-span-2 flex items-center gap-3 min-w-0">
                   <Avatar entry={entry} />
                   <div className="font-medium text-white truncate">
                     {entry.firstName} {entry.lastName}
                   </div>
                 </div>
-                <div className="col-span-2 text-center">
+
+                {/* Score */}
+                <div className="text-center">
                   <div className="text-xl font-bold text-white">
                     {entry.score}
                   </div>
                 </div>
-                <div className="col-span-2 text-center">
-                  <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 truncate">
+
+                {/* Persona */}
+                <div className="text-center">
+                  <div className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 truncate max-w-full">
                     {entry.persona}
                   </div>
                 </div>
-                <div className="col-span-2 text-center">
+
+                {/* Questions */}
+                <div className="text-center">
                   <div className="text-white">{entry.questionsAnswered}</div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-xs text-gray-400">
                     {entry.timeTaken !== undefined
                       ? `${Math.round(entry.timeTaken / 60)}m`
                       : "-"}
                   </div>
                 </div>
-                <div className="col-span-1 text-center text-gray-400 text-sm">
-                  {entry.completedAt
-                    ? entry.completedAt.toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : "-"}
-                </div>
-                <div className="col-span-1 text-center">
+
+                {/* Percentile */}
+                <div className="text-center">
                   {(() => {
                     if (allEntries.length === 0) {
                       return <div className="text-gray-400">-</div>;
