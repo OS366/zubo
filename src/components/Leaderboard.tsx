@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   getTopLeaderboardEntries,
   getLeaderboardStats,
+  getLeaderboardEntries,
 } from "../utils/leaderboard";
 import { LeaderboardEntry } from "../types";
-import { Trophy, Star, Clock, Target, Users } from "lucide-react";
+import { Trophy, Star, Clock, Target, Users, TrendingUp } from "lucide-react";
 
 // Avatar component with robust error handling
 const Avatar: React.FC<{
@@ -64,6 +65,7 @@ const Avatar: React.FC<{
 
 export const Leaderboard: React.FC = () => {
   const [topEntries, setTopEntries] = useState<LeaderboardEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<LeaderboardEntry[]>([]);
   const [stats, setStats] = useState<{
     totalPlayers: number;
     averageScore: number;
@@ -73,15 +75,28 @@ export const Leaderboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to calculate percentile for a given score
+  const calculatePercentile = (score: number, allScores: number[]): number => {
+    if (allScores.length === 0) return 0;
+
+    const sortedScores = [...allScores].sort((a, b) => a - b);
+    const belowCount = sortedScores.filter((s) => s < score).length;
+    const percentile = (belowCount / sortedScores.length) * 100;
+
+    return Math.round(percentile);
+  };
+
   useEffect(() => {
     const loadLeaderboard = async () => {
       try {
         setIsLoading(true);
-        const [entries, leaderboardStats] = await Promise.all([
+        const [topEntries, allEntries, leaderboardStats] = await Promise.all([
           getTopLeaderboardEntries(10),
+          getLeaderboardEntries(),
           getLeaderboardStats(),
         ]);
-        setTopEntries(entries);
+        setTopEntries(topEntries);
+        setAllEntries(allEntries);
         setStats(leaderboardStats);
       } catch (err) {
         setError(
@@ -179,7 +194,10 @@ export const Leaderboard: React.FC = () => {
             <div className="col-span-2 text-center">Persona</div>
             <div className="col-span-2 text-center">Questions</div>
             <div className="col-span-2 text-center">Date</div>
-            <div className="col-span-2 text-center">Efficiency</div>
+            <div className="col-span-2 text-center flex items-center justify-center gap-1">
+              <TrendingUp className="w-4 h-4" />
+              Percentile
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -238,15 +256,35 @@ export const Leaderboard: React.FC = () => {
                 </div>
                 <div className="col-span-2 text-center">
                   {(() => {
-                    const extraLives = Math.max(0, entry.livesRemaining - 3);
-                    const totalExtraLives = Math.max(
-                      1,
-                      (entry.livesBought || 0) + (entry.livesGained || 0)
+                    if (allEntries.length === 0) {
+                      return <div className="text-gray-400">-</div>;
+                    }
+
+                    const allScores = allEntries.map((e) => e.score);
+                    const percentile = calculatePercentile(
+                      entry.score,
+                      allScores
                     );
-                    const efficiency = extraLives / totalExtraLives;
+                    const percentileColor =
+                      percentile >= 90
+                        ? "text-green-400"
+                        : percentile >= 75
+                        ? "text-blue-400"
+                        : percentile >= 50
+                        ? "text-yellow-400"
+                        : "text-gray-400";
+
+                    // Handle special cases for display
+                    const displayText =
+                      percentile === 100
+                        ? "Top"
+                        : percentile === 0
+                        ? "Bottom"
+                        : `${percentile}th`;
+
                     return (
-                      <div className="text-xl font-bold text-green-400">
-                        {(efficiency * 100).toFixed(0)}%
+                      <div className={`text-xl font-bold ${percentileColor}`}>
+                        {displayText}
                       </div>
                     );
                   })()}
