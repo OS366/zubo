@@ -125,11 +125,16 @@ export const saveLeaderboardEntry = async (
 
 // Update mapping code to include avatarUrl
 function mapLeaderboardEntry(entry: any): LeaderboardEntry {
+  const decryptedEmail = decryptField(entry.email);
+  const avatarUrl = entry.avatar_url || getAvatarUrl(decryptedEmail);
+  if (!entry.questions_answered || !entry.completed_at) {
+    console.warn('Leaderboard entry missing questions_answered or completed_at:', entry);
+  }
   return {
     id: entry.id,
     firstName: decryptField(entry.first_name),
     lastName: decryptField(entry.last_name),
-    email: decryptField(entry.email),
+    email: decryptedEmail,
     score: entry.score,
     livesRemaining: entry.lives_remaining,
     questionsAnswered: typeof entry.questions_answered === 'number' ? entry.questions_answered : 0,
@@ -139,7 +144,7 @@ function mapLeaderboardEntry(entry: any): LeaderboardEntry {
     timeTaken: entry.time_taken || undefined,
     isChallengeRound: entry.is_challenge_round ?? false,
     reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false,
-    avatarUrl: entry.avatar_url || getAvatarUrl(decryptField(entry.email)),
+    avatarUrl,
     ageRange: entry.age_range || '',
     answerHistory: entry.answer_history || [],
     sessionDuration: entry.session_duration || 0,

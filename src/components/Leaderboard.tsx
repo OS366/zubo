@@ -134,7 +134,14 @@ export const Leaderboard: React.FC = () => {
                   )}
                 </div>
                 <div className="col-span-3 flex items-center gap-3">
-                  <img src={entry.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full border-2 border-purple-400 bg-white" />
+                  <img 
+                    src={entry.avatarUrl} 
+                    alt="avatar" 
+                    className="w-10 h-10 rounded-full border-2 border-purple-400 bg-white" 
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'https://api.dicebear.com/7.x/bottts/svg?seed=default';
+                    }}
+                  />
                   <div className="font-medium text-white">
                     {entry.firstName} {entry.lastName}
                   </div>
