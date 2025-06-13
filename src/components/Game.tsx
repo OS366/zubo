@@ -279,7 +279,7 @@ export const Game: React.FC = () => {
         }
       }
 
-      const now = 60 - questionTimeLeft;
+      const now = 0;
       setGameState((prev) => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
@@ -315,9 +315,8 @@ export const Game: React.FC = () => {
         if (isCorrect && Math.random() < 0.2) {
           return {
             ...prev,
-            lives: prev.lives + 1,
+            lives: newLives + 1,
             livesGained: prev.livesGained + 1,
-            lives: newLives,
             answeredQuestions: newAnsweredQuestions,
             leaderboardEligible: newLeaderboardEligible,
             perQuestionTimes: [...prev.perQuestionTimes, now],
