@@ -11,26 +11,6 @@ import logo from '../assets/logo.png';
 
 const THRESHOLD_QUESTIONS = Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
 
-// Roaming animation component
-const RoamingAnimation: React.FC = () => {
-  const [pos, setPos] = useState({ top: '50%', left: '50%' });
-  useEffect(() => {
-    const move = () => {
-      setPos({
-        top: `${Math.random() * 80 + 10}%`,
-        left: `${Math.random() * 80 + 10}%`
-      });
-    };
-    const interval = setInterval(move, 4000 + Math.random() * 3000);
-    return () => clearInterval(interval);
-  }, []);
-  return (
-    <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 1000, pointerEvents: 'none', transition: 'top 1s, left 1s' }}>
-      <span style={{ fontSize: 40, filter: 'drop-shadow(0 0 8px #fff)' }}>🌟</span>
-    </div>
-  );
-};
-
 // Add this debug panel component at the top of the Game component
 const DebugPanel = ({ gameState }: { gameState: any }) => (
   <div style={{ position: 'fixed', bottom: 0, right: 0, background: '#222', color: '#fff', padding: 12, zIndex: 9999, fontSize: 12, borderRadius: 8, opacity: 0.9 }}>
@@ -755,7 +735,6 @@ export const Game: React.FC = () => {
 
   return (
     <div className={visualSurprise ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700" : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"}>
-      <RoamingAnimation />
       {/* Game Header */}
       <div className="max-w-4xl mx-auto mb-8">
         <div className="flex justify-between items-center bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
