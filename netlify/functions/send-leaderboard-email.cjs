@@ -28,7 +28,7 @@ exports.handler = async (event) => {
         </div>
         <p style="margin: 0 0 16px 0;">Thank you for playing Zubo and being part of our journey.<br/>— David Labs</p>
         <hr style="border: none; border-top: 1px solid #333; margin: 24px 0;" />
-        <div style="font-size: 12px; color: #aaa;">This email was sent by Zubo (zubo@davidlabs.ca)</div>
+        <div style="font-size: 12px; color: #aaa;">This email was sent by Zubo via Resend</div>
       </div>
     </div>
   `;
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'zubo@davidlabs.ca',
+        from: 'onboarding@resend.dev',
         to,
         subject: 'Congratulations on reaching the Zubo Leaderboard!',
         html,
