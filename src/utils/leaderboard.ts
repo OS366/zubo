@@ -90,6 +90,8 @@ export const saveLeaderboardEntry = async (
       session_duration: sessionDuration ?? 0,
       feedback: encryptField(formData.feedback || ''),
       rating: formData.rating || null,
+      lives_bought: gameState.livesBought,
+      lives_gained: gameState.livesGained,
     };
 
     if (existing) {
@@ -152,6 +154,8 @@ function mapLeaderboardEntry(entry: any): LeaderboardEntry {
     feedback: decryptField(entry.feedback) || undefined,
     rating: entry.rating || undefined,
     leaderboardRank: entry.leaderboard_rank || undefined,
+    livesBought: entry.lives_bought || 0,
+    livesGained: entry.lives_gained || 0,
   };
 }
 

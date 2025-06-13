@@ -21,6 +21,8 @@ export interface GameState {
   leaderboardEligible: boolean; // new field to track if player is eligible for leaderboard
   perQuestionTimes: number[]; // seconds taken for each question
   answerHistory: number[];
+  livesBought: number;
+  livesGained: number;
 }
 
 export interface LeaderboardEntry {
@@ -45,6 +47,8 @@ export interface LeaderboardEntry {
   feedback?: string;
   rating?: number;
   leaderboardRank?: number;
+  livesBought: number;
+  livesGained: number;
 }
 
 export interface LeaderboardFormData {

@@ -106,6 +106,7 @@ export const Leaderboard: React.FC = () => {
             <div className="col-span-2 text-center">Persona</div>
             <div className="col-span-2 text-center">Questions</div>
             <div className="col-span-2 text-center">Date</div>
+            <div className="col-span-2 text-center">Efficiency</div>
           </div>
 
           <div className="space-y-2">
@@ -148,9 +149,6 @@ export const Leaderboard: React.FC = () => {
                 </div>
                 <div className="col-span-2 text-center">
                   <div className="text-xl font-bold text-white">{entry.score}</div>
-                  <div className="text-sm text-gray-400">
-                    {entry.livesRemaining} lives left
-                  </div>
                 </div>
                 <div className="col-span-2 text-center">
                   <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300">
@@ -165,6 +163,18 @@ export const Leaderboard: React.FC = () => {
                 </div>
                 <div className="col-span-2 text-center text-gray-400">
                   {entry.completedAt ? entry.completedAt.toLocaleDateString() : '-'}
+                </div>
+                <div className="col-span-2 text-center">
+                  {(() => {
+                    const extraLives = Math.max(0, entry.livesRemaining - 3);
+                    const totalExtraLives = Math.max(1, (entry.livesBought || 0) + (entry.livesGained || 0));
+                    const efficiency = extraLives / totalExtraLives;
+                    return (
+                      <div className="text-xl font-bold text-green-400">
+                        {(efficiency * 100).toFixed(0)}%
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

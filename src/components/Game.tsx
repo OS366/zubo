@@ -57,7 +57,9 @@ export const Game: React.FC = () => {
     isChallengeRound: false,
     leaderboardEligible: false,
     perQuestionTimes: [],
-    answerHistory: []
+    answerHistory: [],
+    livesBought: 0,
+    livesGained: 0,
   });
 
   const [showLifeGained, setShowLifeGained] = useState(false);
@@ -111,7 +113,6 @@ export const Game: React.FC = () => {
 
         setGameState((prev) => {
           const newLives = prev.lives + livesToAdd;
-          // Auto-respawn if in failure state and have active game
           const shouldResume =
             prev.gameStatus === "failure" && prev.questions.length > 0;
 
@@ -126,6 +127,7 @@ export const Game: React.FC = () => {
           return {
             ...prev,
             lives: newLives,
+            livesBought: prev.livesBought + livesToAdd,
             gameStatus: shouldResume ? "playing" : prev.gameStatus,
           };
         });
@@ -171,6 +173,7 @@ export const Game: React.FC = () => {
             return {
               ...prev,
               lives: newLives,
+              livesBought: prev.livesBought + livesToAdd,
               gameStatus: shouldResume ? "playing" : prev.gameStatus,
             };
           });
@@ -205,7 +208,9 @@ export const Game: React.FC = () => {
       isChallengeRound: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
-      answerHistory: []
+      answerHistory: [],
+      livesBought: 0,
+      livesGained: 0,
     });
     setGameStartTime(new Date());
     setSessionStart(new Date());
@@ -227,7 +232,9 @@ export const Game: React.FC = () => {
       isChallengeRound: true,
       leaderboardEligible: false,
       perQuestionTimes: [],
-      answerHistory: []
+      answerHistory: [],
+      livesBought: 0,
+      livesGained: 0,
     });
     setGameStartTime(new Date());
     setSessionStart(new Date());
@@ -305,6 +312,19 @@ export const Game: React.FC = () => {
           };
         }
 
+        if (isCorrect && Math.random() < 0.2) {
+          return {
+            ...prev,
+            lives: prev.lives + 1,
+            livesGained: prev.livesGained + 1,
+            lives: newLives,
+            answeredQuestions: newAnsweredQuestions,
+            leaderboardEligible: newLeaderboardEligible,
+            perQuestionTimes: [...prev.perQuestionTimes, now],
+            answerHistory: [...prev.answerHistory, answerIndex],
+          };
+        }
+
         return {
           ...prev,
           currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -358,7 +378,9 @@ export const Game: React.FC = () => {
       isChallengeRound: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
-      answerHistory: []
+      answerHistory: [],
+      livesBought: 0,
+      livesGained: 0,
     });
   };
 
@@ -368,7 +390,7 @@ export const Game: React.FC = () => {
       setEmailError(null);
       const topPersona = calculatePersona(gameState.personaScores);
       const sessionDuration = sessionStart && sessionEnd ? Math.round((sessionEnd.getTime() - sessionStart.getTime()) / 1000) : 0;
-      const leaderboardEntry = await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime ?? undefined, sessionDuration);
+      const leaderboardEntry = await saveLeaderboardEntry(formData, { ...gameState, livesBought: gameState.livesBought, livesGained: gameState.livesGained }, topPersona, gameStartTime ?? undefined, sessionDuration);
       setLeaderboardSaved(true);
       // Send congratulatory email
       if (leaderboardEntry) {
