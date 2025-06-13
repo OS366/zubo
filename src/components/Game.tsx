@@ -67,7 +67,6 @@ export const Game: React.FC = () => {
   const [leaderboardSaved, setLeaderboardSaved] = useState(false);
   const [savingToLeaderboard, setSavingToLeaderboard] = useState(false);
   const [visualSurprise, setVisualSurprise] = useState(false);
-  const [easterEggs, setEasterEggs] = useState({ riddles: 0, bonusLives: 0, visualSurprises: 0 });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(60);
@@ -230,7 +229,6 @@ export const Game: React.FC = () => {
     setGameStartTime(new Date());
     setSessionStart(new Date());
     setLeaderboardSaved(false);
-    setEasterEggs({ riddles: 10, bonusLives: 0, visualSurprises: 0 });
   }, []);
 
   const startChallengeRound = useCallback(() => {
@@ -253,7 +251,6 @@ export const Game: React.FC = () => {
     setGameStartTime(new Date());
     setSessionStart(new Date());
     setLeaderboardSaved(false);
-    setEasterEggs({ riddles: 10, bonusLives: 0, visualSurprises: 0 });
   }, []);
 
   const handleAnswer = useCallback(
@@ -261,8 +258,6 @@ export const Game: React.FC = () => {
       const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
       let isCorrect = false;
       let loseLife = false;
-      let foundBonus = false;
-      let foundVisual = false;
 
       // Handle timeout (answerIndex === -1)
       if (answerIndex === -1) {
@@ -303,34 +298,12 @@ export const Game: React.FC = () => {
         const newAnsweredQuestions = prev.answeredQuestions + 1;
         const newLeaderboardEligible = newAnsweredQuestions >= THRESHOLD_QUESTIONS || prev.leaderboardEligible;
 
-        // Random life gain (20% chance on correct answers, 1% for +3 lives)
-        let finalLives = newLives;
-        if (isCorrect) {
-          if (Math.random() < 0.01) {
-            finalLives = newLives + 3;
-            setShowLifeGained(true);
-            setTimeout(() => setShowLifeGained(false), 2000);
-            foundBonus = true;
-          } else if (Math.random() < 0.2) {
-            finalLives = newLives + 1;
-            setShowLifeGained(true);
-            setTimeout(() => setShowLifeGained(false), 2000);
-          }
-        }
-
-        // Visual surprise (2% chance)
-        if (isCorrect && Math.random() < 0.02) {
-          setVisualSurprise(true);
-          setTimeout(() => setVisualSurprise(false), 3000);
-          foundVisual = true;
-        }
-
         // Check game end conditions
-        if (finalLives <= 0) {
+        if (newLives <= 0) {
           return {
             ...prev,
             score: newScore,
-            lives: finalLives,
+            lives: newLives,
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "failure",
             leaderboardEligible: newLeaderboardEligible,
@@ -342,7 +315,7 @@ export const Game: React.FC = () => {
           return {
             ...prev,
             score: newScore,
-            lives: finalLives,
+            lives: newLives,
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "success",
             leaderboardEligible: newLeaderboardEligible,
@@ -351,15 +324,11 @@ export const Game: React.FC = () => {
           };
         }
 
-        // Track easter eggs
-        if (foundBonus) setEasterEggs(e => ({ ...e, bonusLives: e.bonusLives + 1 }));
-        if (foundVisual) setEasterEggs(e => ({ ...e, visualSurprises: e.visualSurprises + 1 }));
-
         return {
           ...prev,
           currentQuestionIndex: prev.currentQuestionIndex + 1,
           score: newScore,
-          lives: finalLives,
+          lives: newLives,
           answeredQuestions: newAnsweredQuestions,
           leaderboardEligible: newLeaderboardEligible,
           perQuestionTimes: [...prev.perQuestionTimes, now],
@@ -431,7 +400,6 @@ export const Game: React.FC = () => {
               firstName: formData.firstName,
               avatarUrl: leaderboardEntry.avatarUrl,
               lives: leaderboardEntry.livesRemaining,
-              easterEggs: easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises,
             }),
           });
           if (!res.ok) {
@@ -611,8 +579,6 @@ export const Game: React.FC = () => {
             </div>
           )}
 
-          <div className="mt-6 text-lg text-white">Easter Eggs Found: {easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises}</div>
-
           <div className="flex gap-4 justify-center">
             {!gameState.isChallengeRound ? (
               <button
@@ -712,8 +678,6 @@ export const Game: React.FC = () => {
               </p>
             </div>
           )}
-
-          <div className="mt-6 text-lg text-white">Easter Eggs Found: {easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises}</div>
 
           <div className="flex gap-4 justify-center flex-wrap">
             {gameState.lives > 0 && gameState.questions.length > 0 ? (

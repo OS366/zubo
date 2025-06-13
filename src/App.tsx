@@ -53,6 +53,18 @@ function App() {
           </Routes>
         </div>
         <Footer />
+        {/* Insert a temporary debug button (always rendered) to trigger the email function in production */}
+        <button
+          style={{ margin: "20px auto", padding: "10px 20px", display: "block" }}
+          onClick={() => {
+            fetch("/.netlify/functions/send-leaderboard-email", { method: "POST" })
+              .then((res) => res.json())
+              .then((data) => alert("Debug email trigger response: " + JSON.stringify(data)))
+              .catch((err) => alert("Debug email trigger error: " + err));
+          }}
+        >
+          (Debug) Trigger Email
+        </button>
       </div>
     </Router>
   );
