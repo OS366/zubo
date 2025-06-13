@@ -216,7 +216,7 @@ export const Game: React.FC = () => {
   }, []);
 
   const startChallengeRound = useCallback(() => {
-    let questions = getChallengeQuestions();
+    let questions = getChallengeQuestions(50);
     questions = injectRandomRiddles(questions, 10);
     setGameState({
       currentQuestionIndex: 0,
