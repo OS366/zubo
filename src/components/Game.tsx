@@ -446,9 +446,7 @@ export const Game: React.FC = () => {
               className="mx-auto mb-4 w-40 h-40 object-contain drop-shadow-xl"
             />
             <p className="text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Discover your true persona through 100 thought-provoking
-              questions. Challenge your mind and unlock the depths of your
-              personality.
+              Welcome to the Zubo Challenge! Test your mind and discover your persona in the ultimate challenge round.
             </p>
           </div>
 
@@ -487,10 +485,10 @@ export const Game: React.FC = () => {
           </div>
 
           <button
-            onClick={startGame}
             className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl"
+            onClick={startChallengeRound}
           >
-            Begin Your Journey
+            Play the Challenge
           </button>
         </div>
       </div>

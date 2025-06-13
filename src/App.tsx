@@ -26,7 +26,7 @@ function App() {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-6">
                 <Link to="/" className="text-white text-xl font-bold">
-                  Zubo Challenge
+                  Play Zubo
                 </Link>
                 <Link to="/about" className="text-white text-sm font-medium hover:underline">
                   About & Privacy

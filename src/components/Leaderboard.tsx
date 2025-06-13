@@ -157,7 +157,7 @@ export const Leaderboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="col-span-2 text-center text-gray-400">
-                  {entry.completedAt.toLocaleDateString()}
+                  {entry.completedAt ? entry.completedAt.toLocaleDateString() : '-'}
                 </div>
               </div>
             ))}
