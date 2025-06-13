@@ -31,6 +31,20 @@ const RoamingAnimation: React.FC = () => {
   );
 };
 
+// Add this debug panel component at the top of the Game component
+const DebugPanel = ({ gameState }: { gameState: any }) => (
+  <div style={{ position: 'fixed', bottom: 0, right: 0, background: '#222', color: '#fff', padding: 12, zIndex: 9999, fontSize: 12, borderRadius: 8, opacity: 0.9 }}>
+    <div><b>DEBUG</b></div>
+    <div>gameStatus: {gameState.gameStatus}</div>
+    <div>questions.length: {gameState.questions.length}</div>
+    <div>currentQuestionIndex: {gameState.currentQuestionIndex}</div>
+    <div>answeredQuestions: {gameState.answeredQuestions}</div>
+    <div>lives: {gameState.lives}</div>
+    <div>isChallengeRound: {String(gameState.isChallengeRound)}</div>
+    <div>leaderboardEligible: {String(gameState.leaderboardEligible)}</div>
+  </div>
+);
+
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     currentQuestionIndex: 0,
@@ -493,6 +507,7 @@ export const Game: React.FC = () => {
             Play the Challenge
           </button>
         </div>
+        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -602,6 +617,7 @@ export const Game: React.FC = () => {
             </button>
           </div>
         </div>
+        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -714,6 +730,7 @@ export const Game: React.FC = () => {
             )}
           </div>
         </div>
+        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -733,6 +750,7 @@ export const Game: React.FC = () => {
             Back to Menu
           </button>
         </div>
+        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -804,6 +822,7 @@ export const Game: React.FC = () => {
 
       {/* Timer */}
       <div className="text-2xl font-bold text-yellow-400">Time Left: {questionTimeLeft}s</div>
+      <DebugPanel gameState={gameState} />
     </div>
   );
 };
