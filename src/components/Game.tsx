@@ -746,6 +746,12 @@ export const Game: React.FC = () => {
     );
   }
 
+  // Before rendering QuestionComponent, add a check for undefined question
+  if (!gameState.questions[gameState.currentQuestionIndex]) {
+    console.log('No question to render:', gameState.currentQuestionIndex, gameState.questions.length);
+    return <div className="text-center text-red-400 text-2xl mt-12">No more questions! (Debug: {gameState.currentQuestionIndex} / {gameState.questions.length})</div>;
+  }
+
   return (
     <div className={visualSurprise ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700" : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"}>
       <RoamingAnimation />
