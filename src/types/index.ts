@@ -4,9 +4,18 @@ export interface Question {
   options: string[];
   answer?: number; // for non-weighted questions
   weights?: Record<string, number>; // for personality questions
-  type: 'logical' | 'analytical' | 'gk' | 'weighted';
+  type: 'logical' | 'analytical' | 'gk' | 'weighted' | 'riddle';
   timed: boolean;
   difficulty?: 'tough' | 'regular'; // new field for question difficulty
+}
+
+export interface QuestionTiming {
+  questionId: number;
+  startTime: Date;
+  endTime: Date;
+  timeTaken: number; // in milliseconds
+  wasTimeout: boolean;
+  answerIndex: number;
 }
 
 export interface GameState {
@@ -20,6 +29,7 @@ export interface GameState {
   isChallengeRound: boolean; // new field to track if we're in the challenge round
   leaderboardEligible: boolean; // new field to track if player is eligible for leaderboard
   perQuestionTimes: number[]; // seconds taken for each question
+  questionTimings: QuestionTiming[]; // detailed timing information for each question
   answerHistory: number[];
   livesBought: number;
   livesGained: number;

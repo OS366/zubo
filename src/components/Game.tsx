@@ -3,18 +3,42 @@ import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
 import { LeaderboardForm } from "./LeaderboardForm";
 import { GameState, Question, LeaderboardFormData } from "../types";
-import { getRandomQuestions, getChallengeQuestions, injectRandomRiddles } from "../data/questions";
+import {
+  getRandomQuestions,
+  getChallengeQuestions,
+  injectRandomRiddles,
+} from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
-import { saveLeaderboardEntry, getUserEntries, getLeaderboardEntries } from "../utils/leaderboard";
+import {
+  saveLeaderboardEntry,
+  getUserEntries,
+  getLeaderboardEntries,
+} from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
-import logo from '../assets/logo.png';
+import logo from "../assets/logo.png";
 
-const THRESHOLD_QUESTIONS = Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
+const THRESHOLD_QUESTIONS =
+  Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
 
 // Add this debug panel component at the top of the Game component
 const DebugPanel = ({ gameState }: { gameState: any }) => (
-  <div style={{ position: 'fixed', bottom: 0, right: 0, background: '#222', color: '#fff', padding: 12, zIndex: 9999, fontSize: 12, borderRadius: 8, opacity: 0.9 }}>
-    <div><b>DEBUG</b></div>
+  <div
+    style={{
+      position: "fixed",
+      bottom: 0,
+      right: 0,
+      background: "#222",
+      color: "#fff",
+      padding: 12,
+      zIndex: 9999,
+      fontSize: 12,
+      borderRadius: 8,
+      opacity: 0.9,
+    }}
+  >
+    <div>
+      <b>DEBUG</b>
+    </div>
     <div>gameStatus: {gameState.gameStatus}</div>
     <div>questions.length: {gameState.questions.length}</div>
     <div>currentQuestionIndex: {gameState.currentQuestionIndex}</div>
@@ -22,6 +46,47 @@ const DebugPanel = ({ gameState }: { gameState: any }) => (
     <div>lives: {gameState.lives}</div>
     <div>isChallengeRound: {String(gameState.isChallengeRound)}</div>
     <div>leaderboardEligible: {String(gameState.leaderboardEligible)}</div>
+    {gameState.questionTimings && gameState.questionTimings.length > 0 && (
+      <div>
+        <div>
+          <b>TIMING STATS</b>
+        </div>
+        <div>
+          Avg Time:{" "}
+          {Math.round(
+            gameState.questionTimings.reduce(
+              (sum: number, t: any) => sum + t.timeTaken,
+              0
+            ) /
+              gameState.questionTimings.length /
+              1000
+          )}
+          s
+        </div>
+        <div>
+          Fastest:{" "}
+          {Math.round(
+            Math.min(
+              ...gameState.questionTimings.map((t: any) => t.timeTaken)
+            ) / 1000
+          )}
+          s
+        </div>
+        <div>
+          Slowest:{" "}
+          {Math.round(
+            Math.max(
+              ...gameState.questionTimings.map((t: any) => t.timeTaken)
+            ) / 1000
+          )}
+          s
+        </div>
+        <div>
+          Timeouts:{" "}
+          {gameState.questionTimings.filter((t: any) => t.wasTimeout).length}
+        </div>
+      </div>
+    )}
   </div>
 );
 
@@ -188,6 +253,7 @@ export const Game: React.FC = () => {
       isChallengeRound: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
+      questionTimings: [],
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
@@ -200,7 +266,7 @@ export const Game: React.FC = () => {
   const startChallengeRound = useCallback(() => {
     let questions = getChallengeQuestions();
     questions = injectRandomRiddles(questions, 10);
-    console.log('Starting challenge round, questions:', questions);
+    console.log("Starting challenge round, questions:", questions);
     setGameState({
       currentQuestionIndex: 0,
       score: 0,
@@ -212,6 +278,7 @@ export const Game: React.FC = () => {
       isChallengeRound: true,
       leaderboardEligible: false,
       perQuestionTimes: [],
+      questionTimings: [],
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
@@ -222,8 +289,17 @@ export const Game: React.FC = () => {
   }, []);
 
   const handleAnswer = useCallback(
-    (answerIndex: number) => {
-      const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
+    (
+      answerIndex: number,
+      timingData: {
+        startTime: Date;
+        endTime: Date;
+        timeTaken: number;
+        wasTimeout: boolean;
+      }
+    ) => {
+      const currentQuestion =
+        gameState.questions[gameState.currentQuestionIndex];
       let isCorrect = false;
       let loseLife = false;
 
@@ -244,7 +320,9 @@ export const Game: React.FC = () => {
 
         // Update persona scores for weighted questions
         if (currentQuestion.type === "weighted" && currentQuestion.weights) {
-          const selectedOption = Object.keys(currentQuestion.weights)[answerIndex];
+          const selectedOption = Object.keys(currentQuestion.weights)[
+            answerIndex
+          ];
           if (selectedOption) {
             setGameState((prev) => ({
               ...prev,
@@ -259,12 +337,23 @@ export const Game: React.FC = () => {
         }
       }
 
-      const now = 0;
+      const timeInSeconds = Math.round(timingData.timeTaken / 1000);
+      const questionTiming = {
+        questionId: currentQuestion.id,
+        startTime: timingData.startTime,
+        endTime: timingData.endTime,
+        timeTaken: timingData.timeTaken,
+        wasTimeout: timingData.wasTimeout,
+        answerIndex: answerIndex,
+      };
+
       setGameState((prev) => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
         const newAnsweredQuestions = prev.answeredQuestions + 1;
-        const newLeaderboardEligible = newAnsweredQuestions >= THRESHOLD_QUESTIONS || prev.leaderboardEligible;
+        const newLeaderboardEligible =
+          newAnsweredQuestions >= THRESHOLD_QUESTIONS ||
+          prev.leaderboardEligible;
 
         // Check game end conditions
         if (newLives <= 0) {
@@ -275,7 +364,8 @@ export const Game: React.FC = () => {
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "failure",
             leaderboardEligible: newLeaderboardEligible,
-            perQuestionTimes: [...prev.perQuestionTimes, now],
+            perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
+            questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
           };
         }
@@ -287,7 +377,8 @@ export const Game: React.FC = () => {
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "success",
             leaderboardEligible: newLeaderboardEligible,
-            perQuestionTimes: [...prev.perQuestionTimes, now],
+            perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
+            questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
           };
         }
@@ -300,7 +391,8 @@ export const Game: React.FC = () => {
             livesGained: prev.livesGained + 1,
             answeredQuestions: newAnsweredQuestions,
             leaderboardEligible: newLeaderboardEligible,
-            perQuestionTimes: [...prev.perQuestionTimes, now],
+            perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
+            questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
           };
         }
@@ -312,7 +404,8 @@ export const Game: React.FC = () => {
           lives: newLives,
           answeredQuestions: newAnsweredQuestions,
           leaderboardEligible: newLeaderboardEligible,
-          perQuestionTimes: [...prev.perQuestionTimes, now],
+          perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
+          questionTimings: [...prev.questionTimings, questionTiming],
           answerHistory: [...prev.answerHistory, answerIndex],
         };
       });
@@ -358,6 +451,7 @@ export const Game: React.FC = () => {
       isChallengeRound: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
+      questionTimings: [],
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
@@ -369,45 +463,63 @@ export const Game: React.FC = () => {
       setSavingToLeaderboard(true);
       setEmailError(null);
       const topPersona = calculatePersona(gameState.personaScores);
-      const sessionDuration = sessionStart && sessionEnd ? Math.round((sessionEnd.getTime() - sessionStart.getTime()) / 1000) : 0;
-      const leaderboardEntry = await saveLeaderboardEntry(formData, { ...gameState, livesBought: gameState.livesBought, livesGained: gameState.livesGained }, topPersona, gameStartTime ?? undefined, sessionDuration);
+      const sessionDuration =
+        sessionStart && sessionEnd
+          ? Math.round((sessionEnd.getTime() - sessionStart.getTime()) / 1000)
+          : 0;
+      const leaderboardEntry = await saveLeaderboardEntry(
+        formData,
+        {
+          ...gameState,
+          livesBought: gameState.livesBought,
+          livesGained: gameState.livesGained,
+        },
+        topPersona,
+        gameStartTime ?? undefined,
+        sessionDuration
+      );
       setLeaderboardSaved(true);
       // Send congratulatory email
       if (leaderboardEntry) {
         try {
-          const res = await fetch('/.netlify/functions/send-leaderboard-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              to: formData.email,
-              firstName: formData.firstName,
-              avatarUrl: leaderboardEntry.avatarUrl,
-              lives: leaderboardEntry.livesRemaining,
-            }),
-          });
+          const res = await fetch(
+            "/.netlify/functions/send-leaderboard-email",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to: formData.email,
+                firstName: formData.firstName,
+                avatarUrl: leaderboardEntry.avatarUrl,
+                lives: leaderboardEntry.livesRemaining,
+              }),
+            }
+          );
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            setEmailError(data.error || 'Failed to send email');
-            console.error('Email send failed:', data.error || res.statusText);
+            setEmailError(data.error || "Failed to send email");
+            console.error("Email send failed:", data.error || res.statusText);
           }
         } catch (err) {
-          setEmailError((err as Error).message || 'Failed to send email');
-          console.error('Email send error:', err);
+          setEmailError((err as Error).message || "Failed to send email");
+          console.error("Email send error:", err);
         }
       }
 
       const userEntries = await getUserEntries(formData.email);
       const attempts = userEntries.length;
       const allEntries = await getLeaderboardEntries();
-      const sorted = allEntries.sort((a, b) => b.score - a.score || b.questionsAnswered - a.questionsAnswered);
-      const rank = sorted.findIndex(e => e.id === leaderboardEntry?.id) + 1;
+      const sorted = allEntries.sort(
+        (a, b) => b.score - a.score || b.questionsAnswered - a.questionsAnswered
+      );
+      const rank = sorted.findIndex((e) => e.id === leaderboardEntry?.id) + 1;
 
       setUserAttempts(attempts);
       setUserRank(rank);
 
       // Pass attempts and rank to the success screen state/UI
     } catch (error) {
-      console.error('Failed to save to leaderboard:', error);
+      console.error("Failed to save to leaderboard:", error);
       throw error; // Let the form component handle the error
     } finally {
       setSavingToLeaderboard(false);
@@ -426,7 +538,8 @@ export const Game: React.FC = () => {
               className="mx-auto mb-4 w-40 h-40 object-contain drop-shadow-xl"
             />
             <p className="text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Welcome to the Zubo Challenge! Test your mind and discover your persona in the ultimate challenge round.
+              Welcome to the Zubo Challenge! Test your mind and discover your
+              persona in the ultimate challenge round.
             </p>
           </div>
 
@@ -450,7 +563,9 @@ export const Game: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center text-gray-300">
                   <Sparkles className="w-5 h-5 text-purple-400 mr-3" />
-                  <span>20% chance to gain a life on correct answers (no max limit)</span>
+                  <span>
+                    20% chance to gain a life on correct answers (no max limit)
+                  </span>
                 </div>
                 <div className="flex items-center text-gray-300">
                   <span className="text-green-400 mr-3">✓</span>
@@ -497,11 +612,16 @@ export const Game: React.FC = () => {
           <div className="mb-8">
             <div className="text-6xl mb-4">🎉</div>
             <h1 className="text-5xl font-bold text-white mb-4">
-              {gameState.isChallengeRound ? "Challenge Complete!" : "Congratulations!"}
+              {gameState.isChallengeRound
+                ? "Challenge Complete!"
+                : "Congratulations!"}
             </h1>
             <p className="text-xl text-gray-300 mb-8">
-              You've completed {gameState.isChallengeRound ? "the challenge round" : "the main game"} with a score of{" "}
-              {gameState.score}/50!
+              You've completed{" "}
+              {gameState.isChallengeRound
+                ? "the challenge round"
+                : "the main game"}{" "}
+              with a score of {gameState.score}/50!
             </p>
           </div>
 
@@ -533,7 +653,9 @@ export const Game: React.FC = () => {
                 gameResult="success"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= THRESHOLD_QUESTIONS}
+                reachedThreshold={
+                  gameState.answeredQuestions >= THRESHOLD_QUESTIONS
+                }
               />
             </div>
           ) : leaderboardSaved ? (
@@ -542,12 +664,24 @@ export const Game: React.FC = () => {
                 Score Saved to Leaderboard!
               </div>
               <p className="text-gray-300">
-                Your achievement has been recorded. Check the leaderboard to see your ranking!
+                Your achievement has been recorded. Check the leaderboard to see
+                your ranking!
               </p>
               {userAttempts !== null && userRank !== null && (
                 <div className="mt-4 text-lg text-white">
-                  <div>You have played <span className="font-bold text-purple-400">{userAttempts}</span> time{userAttempts === 1 ? '' : 's'}.</div>
-                  <div>Your current leaderboard rank: <span className="font-bold text-yellow-400">#{userRank}</span></div>
+                  <div>
+                    You have played{" "}
+                    <span className="font-bold text-purple-400">
+                      {userAttempts}
+                    </span>{" "}
+                    time{userAttempts === 1 ? "" : "s"}.
+                  </div>
+                  <div>
+                    Your current leaderboard rank:{" "}
+                    <span className="font-bold text-yellow-400">
+                      #{userRank}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -639,7 +773,9 @@ export const Game: React.FC = () => {
                 gameResult="failure"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= THRESHOLD_QUESTIONS}
+                reachedThreshold={
+                  gameState.answeredQuestions >= THRESHOLD_QUESTIONS
+                }
               />
             </div>
           ) : leaderboardSaved ? (
@@ -648,7 +784,8 @@ export const Game: React.FC = () => {
                 Score Saved to Leaderboard!
               </div>
               <p className="text-gray-300">
-                Your progress has been recorded. Keep playing to improve your score!
+                Your progress has been recorded. Keep playing to improve your
+                score!
               </p>
             </div>
           ) : (
@@ -713,8 +850,13 @@ export const Game: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
         <div className="text-center">
           <div className="text-4xl text-red-400 mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-white mb-2">No Questions Loaded</h1>
-          <p className="text-gray-300 mb-4">There was a problem loading the challenge questions. Please try again.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">
+            No Questions Loaded
+          </h1>
+          <p className="text-gray-300 mb-4">
+            There was a problem loading the challenge questions. Please try
+            again.
+          </p>
           <button
             onClick={resetGame}
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
@@ -729,12 +871,27 @@ export const Game: React.FC = () => {
 
   // Before rendering QuestionComponent, add a check for undefined question
   if (!gameState.questions[gameState.currentQuestionIndex]) {
-    console.log('No question to render:', gameState.currentQuestionIndex, gameState.questions.length);
-    return <div className="text-center text-red-400 text-2xl mt-12">No more questions! (Debug: {gameState.currentQuestionIndex} / {gameState.questions.length})</div>;
+    console.log(
+      "No question to render:",
+      gameState.currentQuestionIndex,
+      gameState.questions.length
+    );
+    return (
+      <div className="text-center text-red-400 text-2xl mt-12">
+        No more questions! (Debug: {gameState.currentQuestionIndex} /{" "}
+        {gameState.questions.length})
+      </div>
+    );
   }
 
   return (
-    <div className={visualSurprise ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700" : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"}>
+    <div
+      className={
+        visualSurprise
+          ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700"
+          : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"
+      }
+    >
       {/* Game Header */}
       <div className="max-w-4xl mx-auto mb-8">
         <div className="flex justify-between items-center bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">

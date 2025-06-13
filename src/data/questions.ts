@@ -784,7 +784,7 @@ export const riddlePool: Question[] = [
     text: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
     options: ["Echo", "Shadow", "Fire", "Cloud"],
     answer: 0,
-    type: 'gk',
+    type: 'riddle',
     timed: false
   },
   {
@@ -792,7 +792,7 @@ export const riddlePool: Question[] = [
     text: "What has keys but can't open locks?",
     options: ["Piano", "Map", "Book", "Clock"],
     answer: 0,
-    type: 'gk',
+    type: 'riddle',
     timed: false
   },
   {
@@ -800,7 +800,143 @@ export const riddlePool: Question[] = [
     text: "What gets wetter as it dries?",
     options: ["Towel", "Sun", "Rain", "Soap"],
     answer: 0,
-    type: 'gk',
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1004,
+    text: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
+    options: ["Map", "Globe", "Picture", "Dream"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1005,
+    text: "What can travel around the world while staying in a corner?",
+    options: ["Stamp", "Spider", "Coin", "Dust"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1006,
+    text: "I'm tall when I'm young, and I'm short when I'm old. What am I?",
+    options: ["Candle", "Tree", "Person", "Building"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1007,
+    text: "What has one eye but can't see?",
+    options: ["Needle", "Potato", "Storm", "Camera"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1008,
+    text: "What goes up but never comes down?",
+    options: ["Age", "Balloon", "Smoke", "Temperature"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1009,
+    text: "I have hands but cannot clap. What am I?",
+    options: ["Clock", "Statue", "Mannequin", "Robot"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1010,
+    text: "What has a head and a tail but no body?",
+    options: ["Coin", "Snake", "Comet", "Arrow"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1011,
+    text: "I'm light as a feather, yet the strongest person can't hold me for much longer than a minute. What am I?",
+    options: ["Breath", "Thought", "Air", "Sound"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1012,
+    text: "What breaks but never falls, and what falls but never breaks?",
+    options: ["Day and Night", "Heart and Tears", "Dawn and Dusk", "Promise and Rain"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1013,
+    text: "I have a golden head and a golden tail, but no golden body. What am I?",
+    options: ["Coin", "Arrow", "Pencil", "Candle"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1014,
+    text: "What can you catch but not throw?",
+    options: ["Cold", "Ball", "Fish", "Bird"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1015,
+    text: "I'm found in socks, scarves, and mittens, and often in the paws of playful kittens. What am I?",
+    options: ["Yarn", "Wool", "Cotton", "Thread"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1016,
+    text: "What has 88 keys but can't open a single door?",
+    options: ["Piano", "Computer", "Typewriter", "Calculator"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1017,
+    text: "I'm always hungry and will die if not fed, but whatever I touch will soon turn red. What am I?",
+    options: ["Fire", "Rust", "Blood", "Paint"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1018,
+    text: "What has words but never speaks?",
+    options: ["Book", "Dictionary", "Sign", "Letter"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1019,
+    text: "I have a face but no eyes, hands but no arms. What am I?",
+    options: ["Clock", "Watch", "Statue", "Doll"],
+    answer: 0,
+    type: 'riddle',
+    timed: false
+  },
+  {
+    id: 1020,
+    text: "What gets sharper the more you use it?",
+    options: ["Brain", "Knife", "Pencil", "Saw"],
+    answer: 0,
+    type: 'riddle',
     timed: false
   }
 ];

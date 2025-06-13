@@ -27,8 +27,11 @@ const generateId = (): string => {
 
 // Helper to generate a DiceBear avatar URL
 function getAvatarUrl(email: string) {
-  const hash = encodeURIComponent(email.trim().toLowerCase());
-  return `https://api.dicebear.com/7.x/bottts/svg?seed=${hash}`;
+  const cleanEmail = email.trim().toLowerCase();
+  const hash = encodeURIComponent(cleanEmail);
+  const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${hash}`;
+  console.log('Generated avatar URL for', cleanEmail, ':', avatarUrl);
+  return avatarUrl;
 }
 
 // Get all leaderboard entries from Supabase
@@ -129,9 +132,18 @@ export const saveLeaderboardEntry = async (
 function mapLeaderboardEntry(entry: any): LeaderboardEntry {
   const decryptedEmail = decryptField(entry.email);
   const avatarUrl = entry.avatar_url || getAvatarUrl(decryptedEmail);
+  
   if (!entry.questions_answered || !entry.completed_at) {
     console.warn('Leaderboard entry missing questions_answered or completed_at:', entry);
   }
+  
+  console.log('Mapping leaderboard entry:', {
+    id: entry.id,
+    email: decryptedEmail,
+    avatarUrl,
+    storedAvatarUrl: entry.avatar_url
+  });
+  
   return {
     id: entry.id,
     firstName: decryptField(entry.first_name),
@@ -244,11 +256,13 @@ export const getTopLeaderboardEntries = async (limit: number = 10): Promise<Lead
       .from('leaderboard')
       .select('*')
       .order('score', { ascending: false })
+      .order('questions_answered', { ascending: false })
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(mapLeaderboardEntry);
   } catch (error) {
-    throw handleSupabaseError(error);
+    handleSupabaseError(error);
+    return [];
   }
 }; 

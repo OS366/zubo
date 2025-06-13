@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Question as QuestionType } from "../types";
 import { Timer } from "./Timer";
 
 interface QuestionProps {
   question: QuestionType;
-  onAnswer: (answerIndex: number) => void;
+  onAnswer: (
+    answerIndex: number,
+    timingData: {
+      startTime: Date;
+      endTime: Date;
+      timeTaken: number;
+      wasTimeout: boolean;
+    }
+  ) => void;
   questionNumber: number;
   totalQuestions: number;
 }
@@ -17,24 +25,36 @@ export const Question: React.FC<QuestionProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(question.timed);
+  const startTimeRef = useRef<Date>(new Date());
 
-  // Reset state when question changes
+  // Reset state when question changes and record start time
   useEffect(() => {
     setSelectedAnswer(null);
     setShowTimer(question.timed);
+    startTimeRef.current = new Date();
   }, [question.id, question.timed]);
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = (index: number, wasTimeout: boolean = false) => {
+    const endTime = new Date();
+    const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
+
+    const timingData = {
+      startTime: startTimeRef.current,
+      endTime,
+      timeTaken,
+      wasTimeout,
+    };
+
     setSelectedAnswer(index);
     setShowTimer(false);
     setTimeout(() => {
-      onAnswer(index);
+      onAnswer(index, timingData);
     }, 500);
   };
 
   const handleTimeout = () => {
     setShowTimer(false);
-    onAnswer(-1); // -1 indicates timeout
+    handleAnswer(-1, true); // -1 indicates timeout
   };
 
   const getQuestionTypeColor = (type: string) => {
@@ -47,6 +67,8 @@ export const Question: React.FC<QuestionProps> = ({
         return "from-green-500 to-emerald-500";
       case "weighted":
         return "from-orange-500 to-red-500";
+      case "riddle":
+        return "from-yellow-500 to-amber-500";
       default:
         return "from-gray-500 to-gray-600";
     }
@@ -62,6 +84,8 @@ export const Question: React.FC<QuestionProps> = ({
         return "General Knowledge";
       case "weighted":
         return "Personality Insight";
+      case "riddle":
+        return "Brain Teaser";
       default:
         return "Question";
     }
