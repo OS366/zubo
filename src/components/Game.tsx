@@ -1,13 +1,33 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
 import { LeaderboardForm } from "./LeaderboardForm";
 import { GameState, Question, LeaderboardFormData } from "../types";
-import { getRandomQuestions, getChallengeQuestions } from "../data/questions";
+import { getRandomQuestions, getChallengeQuestions, injectRandomRiddles } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
-import { saveLeaderboardEntry } from "../utils/leaderboard";
+import { saveLeaderboardEntry, getUserEntries, getLeaderboardEntries } from "../utils/leaderboard";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
 import logo from '../assets/logo.png';
+
+// Roaming animation component
+const RoamingAnimation: React.FC = () => {
+  const [pos, setPos] = useState({ top: '50%', left: '50%' });
+  useEffect(() => {
+    const move = () => {
+      setPos({
+        top: `${Math.random() * 80 + 10}%`,
+        left: `${Math.random() * 80 + 10}%`
+      });
+    };
+    const interval = setInterval(move, 4000 + Math.random() * 3000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 1000, pointerEvents: 'none', transition: 'top 1s, left 1s' }}>
+      <span style={{ fontSize: 40, filter: 'drop-shadow(0 0 8px #fff)' }}>🌟</span>
+    </div>
+  );
+};
 
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -19,7 +39,9 @@ export const Game: React.FC = () => {
     personaScores: {},
     gameStatus: "menu",
     isChallengeRound: false,
-    leaderboardEligible: false
+    leaderboardEligible: false,
+    perQuestionTimes: [],
+    answerHistory: []
   });
 
   const [showLifeGained, setShowLifeGained] = useState(false);
@@ -28,6 +50,17 @@ export const Game: React.FC = () => {
   const [gameStartTime, setGameStartTime] = useState<Date | null>(null);
   const [leaderboardSaved, setLeaderboardSaved] = useState(false);
   const [savingToLeaderboard, setSavingToLeaderboard] = useState(false);
+  const [visualSurprise, setVisualSurprise] = useState(false);
+  const [easterEggs, setEasterEggs] = useState({ riddles: 0, bonusLives: 0, visualSurprises: 0 });
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(60);
+
+  const [sessionStart, setSessionStart] = useState<Date | null>(null);
+  const [sessionEnd, setSessionEnd] = useState<Date | null>(null);
+
+  const [userAttempts, setUserAttempts] = useState<number | null>(null);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   // Debug: Log game state changes
   useEffect(() => {
@@ -142,8 +175,27 @@ export const Game: React.FC = () => {
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
+  // Start/reset timer on question change
+  useEffect(() => {
+    setQuestionTimeLeft(60);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setQuestionTimeLeft((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          handleAnswer(-1); // Auto-submit as incorrect
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.currentQuestionIndex]);
+
   const startGame = useCallback(() => {
-    const questions = getRandomQuestions(50); // Get 50 random questions
+    let questions = getRandomQuestions(50);
+    questions = injectRandomRiddles(questions, 10);
     setGameState({
       currentQuestionIndex: 0,
       score: 0,
@@ -153,14 +205,19 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "playing",
       isChallengeRound: false,
-      leaderboardEligible: false
+      leaderboardEligible: false,
+      perQuestionTimes: [],
+      answerHistory: []
     });
     setGameStartTime(new Date());
+    setSessionStart(new Date());
     setLeaderboardSaved(false);
+    setEasterEggs({ riddles: 10, bonusLives: 0, visualSurprises: 0 });
   }, []);
 
   const startChallengeRound = useCallback(() => {
-    const questions = getChallengeQuestions(); // Get 50 challenge questions
+    let questions = getChallengeQuestions();
+    questions = injectRandomRiddles(questions, 10);
     setGameState(prev => ({
       ...prev,
       currentQuestionIndex: 0,
@@ -171,10 +228,14 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "playing",
       isChallengeRound: true,
-      leaderboardEligible: false
+      leaderboardEligible: false,
+      perQuestionTimes: [],
+      answerHistory: []
     }));
     setGameStartTime(new Date());
+    setSessionStart(new Date());
     setLeaderboardSaved(false);
+    setEasterEggs({ riddles: 10, bonusLives: 0, visualSurprises: 0 });
   }, []);
 
   const handleAnswer = useCallback(
@@ -182,6 +243,8 @@ export const Game: React.FC = () => {
       const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
       let isCorrect = false;
       let loseLife = false;
+      let foundBonus = false;
+      let foundVisual = false;
 
       // Handle timeout (answerIndex === -1)
       if (answerIndex === -1) {
@@ -215,19 +278,33 @@ export const Game: React.FC = () => {
         }
       }
 
-      // Update game state
+      const now = 60 - questionTimeLeft;
       setGameState((prev) => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
         const newAnsweredQuestions = prev.answeredQuestions + 1;
         const newLeaderboardEligible = newAnsweredQuestions >= 5 || prev.leaderboardEligible;
 
-        // Random life gain (10% chance on correct answers)
+        // Random life gain (20% chance on correct answers, 1% for +3 lives)
         let finalLives = newLives;
-        if (isCorrect && Math.random() < 0.1 && newLives < 5) {
-          finalLives = newLives + 1;
-          setShowLifeGained(true);
-          setTimeout(() => setShowLifeGained(false), 2000);
+        if (isCorrect) {
+          if (Math.random() < 0.01) {
+            finalLives = newLives + 3;
+            setShowLifeGained(true);
+            setTimeout(() => setShowLifeGained(false), 2000);
+            foundBonus = true;
+          } else if (Math.random() < 0.2) {
+            finalLives = newLives + 1;
+            setShowLifeGained(true);
+            setTimeout(() => setShowLifeGained(false), 2000);
+          }
+        }
+
+        // Visual surprise (2% chance)
+        if (isCorrect && Math.random() < 0.02) {
+          setVisualSurprise(true);
+          setTimeout(() => setVisualSurprise(false), 3000);
+          foundVisual = true;
         }
 
         // Check game end conditions
@@ -238,10 +315,11 @@ export const Game: React.FC = () => {
             lives: finalLives,
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "failure",
-            leaderboardEligible: newLeaderboardEligible
+            leaderboardEligible: newLeaderboardEligible,
+            perQuestionTimes: [...prev.perQuestionTimes, now],
+            answerHistory: [...prev.answerHistory, answerIndex],
           };
         }
-
         if (newAnsweredQuestions >= 50) {
           return {
             ...prev,
@@ -249,9 +327,15 @@ export const Game: React.FC = () => {
             lives: finalLives,
             answeredQuestions: newAnsweredQuestions,
             gameStatus: "success",
-            leaderboardEligible: newLeaderboardEligible
+            leaderboardEligible: newLeaderboardEligible,
+            perQuestionTimes: [...prev.perQuestionTimes, now],
+            answerHistory: [...prev.answerHistory, answerIndex],
           };
         }
+
+        // Track easter eggs
+        if (foundBonus) setEasterEggs(e => ({ ...e, bonusLives: e.bonusLives + 1 }));
+        if (foundVisual) setEasterEggs(e => ({ ...e, visualSurprises: e.visualSurprises + 1 }));
 
         return {
           ...prev,
@@ -259,7 +343,9 @@ export const Game: React.FC = () => {
           score: newScore,
           lives: finalLives,
           answeredQuestions: newAnsweredQuestions,
-          leaderboardEligible: newLeaderboardEligible
+          leaderboardEligible: newLeaderboardEligible,
+          perQuestionTimes: [...prev.perQuestionTimes, now],
+          answerHistory: [...prev.answerHistory, answerIndex],
         };
       });
     },
@@ -302,7 +388,9 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "menu",
       isChallengeRound: false,
-      leaderboardEligible: false
+      leaderboardEligible: false,
+      perQuestionTimes: [],
+      answerHistory: []
     });
   };
 
@@ -310,8 +398,34 @@ export const Game: React.FC = () => {
     try {
       setSavingToLeaderboard(true);
       const topPersona = calculatePersona(gameState.personaScores);
-      await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime ?? undefined);
+      const sessionDuration = sessionStart && sessionEnd ? Math.round((sessionEnd.getTime() - sessionStart.getTime()) / 1000) : 0;
+      const leaderboardEntry = await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime ?? undefined, sessionDuration);
       setLeaderboardSaved(true);
+      // Send congratulatory email
+      if (leaderboardEntry) {
+        await fetch('/.netlify/functions/send-leaderboard-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: formData.email,
+            firstName: formData.firstName,
+            avatarUrl: leaderboardEntry.avatarUrl,
+            lives: leaderboardEntry.livesRemaining,
+            easterEggs: easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises,
+          }),
+        });
+      }
+
+      const userEntries = await getUserEntries(formData.email);
+      const attempts = userEntries.length;
+      const allEntries = await getLeaderboardEntries();
+      const sorted = allEntries.sort((a, b) => b.score - a.score || b.questionsAnswered - a.questionsAnswered);
+      const rank = sorted.findIndex(e => e.id === leaderboardEntry?.id) + 1;
+
+      setUserAttempts(attempts);
+      setUserRank(rank);
+
+      // Pass attempts and rank to the success screen state/UI
     } catch (error) {
       console.error('Failed to save to leaderboard:', error);
       throw error; // Let the form component handle the error
@@ -358,7 +472,7 @@ export const Game: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center text-gray-300">
                   <Sparkles className="w-5 h-5 text-purple-400 mr-3" />
-                  <span>10% chance to gain lives</span>
+                  <span>20% chance to gain a life on correct answers (no max limit)</span>
                 </div>
                 <div className="flex items-center text-gray-300">
                   <span className="text-green-400 mr-3">✓</span>
@@ -451,6 +565,12 @@ export const Game: React.FC = () => {
               <p className="text-gray-300">
                 Your achievement has been recorded. Check the leaderboard to see your ranking!
               </p>
+              {userAttempts !== null && userRank !== null && (
+                <div className="mt-4 text-lg text-white">
+                  <div>You have played <span className="font-bold text-purple-400">{userAttempts}</span> time{userAttempts === 1 ? '' : 's'}.</div>
+                  <div>Your current leaderboard rank: <span className="font-bold text-yellow-400">#{userRank}</span></div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-yellow-900/50 border border-yellow-700 rounded-2xl p-6 mb-8">
@@ -462,6 +582,8 @@ export const Game: React.FC = () => {
               </p>
             </div>
           )}
+
+          <div className="mt-6 text-lg text-white">Easter Eggs Found: {easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises}</div>
 
           <div className="flex gap-4 justify-center">
             {!gameState.isChallengeRound ? (
@@ -556,6 +678,8 @@ export const Game: React.FC = () => {
             </div>
           )}
 
+          <div className="mt-6 text-lg text-white">Easter Eggs Found: {easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises}</div>
+
           <div className="flex gap-4 justify-center flex-wrap">
             {gameState.lives > 0 && gameState.questions.length > 0 ? (
               <>
@@ -596,7 +720,8 @@ export const Game: React.FC = () => {
 
   // Playing Screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4">
+    <div className={visualSurprise ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700" : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"}>
+      <RoamingAnimation />
       {/* Game Header */}
       <div className="max-w-4xl mx-auto mb-8">
         <div className="flex justify-between items-center bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
@@ -658,6 +783,9 @@ export const Game: React.FC = () => {
         questionNumber={gameState.currentQuestionIndex + 1}
         totalQuestions={gameState.questions.length}
       />
+
+      {/* Timer */}
+      <div className="text-2xl font-bold text-yellow-400">Time Left: {questionTimeLeft}s</div>
     </div>
   );
 };

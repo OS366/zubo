@@ -23,15 +23,26 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
   const [formData, setFormData] = useState<LeaderboardFormData>({
     firstName: '',
     lastName: '',
-    email: ''
+    email: '',
+    ageRange: '',
+    feedback: '',
+    rating: 0
   });
   const [errors, setErrors] = useState<Partial<LeaderboardFormData>>({});
   const [showForm, setShowForm] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const ageRanges = [
+    '0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60+'
+  ];
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'rating') return; // Only set rating via star button
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
     // Clear error when user starts typing
     if (errors[name as keyof LeaderboardFormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -51,6 +62,12 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
       newErrors.email = 'Email is required';
     } else if (!isValidEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    }
+    if (!formData.ageRange) {
+      newErrors.ageRange = 'Please select your age range';
+    }
+    if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
+      newErrors.rating = 'Please provide a rating (1-5)';
     }
 
     setErrors(newErrors);
@@ -175,6 +192,69 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
             {errors.email && (
               <p className="mt-1 text-sm text-red-400">{errors.email}</p>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="ageRange" className="block text-sm font-medium text-gray-300 mb-2">
+              Age Range
+            </label>
+            <select
+              id="ageRange"
+              name="ageRange"
+              value={formData.ageRange}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-lg bg-gray-700 border ${
+                errors.ageRange ? 'border-red-500' : 'border-gray-600'
+              } text-white focus:outline-none focus:ring-2 focus:ring-purple-500`}
+            >
+              <option value="">Select your age range</option>
+              {ageRanges.map((range) => (
+                <option key={range} value={range}>{range}</option>
+              ))}
+            </select>
+            {errors.ageRange && (
+              <p className="mt-1 text-sm text-red-400">{errors.ageRange}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="rating" className="block text-sm font-medium text-gray-300 mb-2">
+              Rating
+            </label>
+            <div className="flex items-center gap-2 mb-2">
+              {[1,2,3,4,5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                  className={
+                    (formData.rating && formData.rating >= star)
+                      ? 'text-yellow-400 text-2xl' : 'text-gray-500 text-2xl'
+                  }
+                  aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            {errors.rating && (
+              <p className="mt-1 text-sm text-red-400">{errors.rating}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="feedback" className="block text-sm font-medium text-gray-300 mb-2">
+              Feedback (optional)
+            </label>
+            <textarea
+              id="feedback"
+              name="feedback"
+              value={formData.feedback}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Share your thoughts about Zubo..."
+            />
           </div>
 
           {submitError && (

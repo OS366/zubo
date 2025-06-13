@@ -5,6 +5,7 @@ import { Leaderboard } from './components/Leaderboard';
 import { Trophy } from 'lucide-react';
 import Footer from './components/Footer';
 import boltLogo from './assets/bolt-logo.png';  // PNG import
+import Home from './components/Home';
 
 function App() {
   return (
@@ -23,9 +24,12 @@ function App() {
         <nav className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
+              <div className="flex items-center gap-6">
                 <Link to="/" className="text-white text-xl font-bold">
                   Zubo Challenge
+                </Link>
+                <Link to="/about" className="text-white text-sm font-medium hover:underline">
+                  About & Privacy
                 </Link>
               </div>
               <div className="flex items-center">
@@ -42,7 +46,9 @@ function App() {
         </nav>
         <div className="flex-1">
           <Routes>
-            <Route path="/" element={<Game />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<Home />} />
+            <Route path="/game" element={<Game />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </div>

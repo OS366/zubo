@@ -133,16 +133,16 @@ export const Leaderboard: React.FC = () => {
                     <span className="text-gray-400">{index + 1}</span>
                   )}
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-3 flex items-center gap-3">
+                  <img src={entry.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full border-2 border-purple-400 bg-white" />
                   <div className="font-medium text-white">
-                    {entry.first_name} {entry.last_name}
+                    {entry.firstName} {entry.lastName}
                   </div>
-                  <div className="text-sm text-gray-400">{entry.email}</div>
                 </div>
                 <div className="col-span-2 text-center">
                   <div className="text-xl font-bold text-white">{entry.score}</div>
                   <div className="text-sm text-gray-400">
-                    {entry.lives_remaining} lives left
+                    {entry.livesRemaining} lives left
                   </div>
                 </div>
                 <div className="col-span-2 text-center">
@@ -151,13 +151,13 @@ export const Leaderboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="col-span-2 text-center">
-                  <div className="text-white">{entry.questions_answered}</div>
+                  <div className="text-white">{entry.questionsAnswered}</div>
                   <div className="text-sm text-gray-400">
-                    {Math.round(entry.time_taken / 60)}m
+                    {entry.timeTaken !== undefined ? `${Math.round(entry.timeTaken / 60)}m` : '-'}
                   </div>
                 </div>
                 <div className="col-span-2 text-center text-gray-400">
-                  {new Date(entry.completed_at).toLocaleDateString()}
+                  {entry.completedAt.toLocaleDateString()}
                 </div>
               </div>
             ))}

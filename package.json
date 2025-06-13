@@ -15,7 +15,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.6.2",
-    "stripe": "^14.25.0"
+    "stripe": "^14.25.0",
+    "supabase": "^2.24.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

@@ -778,6 +778,33 @@ export const questionPool: Question[] = [
   // ... Add more regular questions here ...
 ];
 
+export const riddlePool: Question[] = [
+  {
+    id: 1001,
+    text: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
+    options: ["Echo", "Shadow", "Fire", "Cloud"],
+    answer: 0,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 1002,
+    text: "What has keys but can't open locks?",
+    options: ["Piano", "Map", "Book", "Clock"],
+    answer: 0,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 1003,
+    text: "What gets wetter as it dries?",
+    options: ["Towel", "Sun", "Rain", "Soap"],
+    answer: 0,
+    type: 'gk',
+    timed: false
+  }
+];
+
 // Function to get random questions for the main game (50 questions)
 export function getRandomQuestions(count: number = 50): Question[] {
   // Enhanced randomization using Fisher-Yates shuffle algorithm
@@ -831,4 +858,25 @@ export function getChallengeQuestions(): Question[] {
   }
   
   return selectedQuestions;
+}
+
+export function injectRandomRiddles(questions: Question[], count: number = 10): Question[] {
+  if (questions.length === 0 || riddlePool.length === 0) return questions;
+  const usedIndexes = new Set<number>();
+  const usedRiddles = new Set<number>();
+  const newQuestions = [...questions];
+  for (let i = 0; i < count && i < riddlePool.length; i++) {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * questions.length);
+    } while (usedIndexes.has(idx));
+    usedIndexes.add(idx);
+    let riddleIdx;
+    do {
+      riddleIdx = Math.floor(Math.random() * riddlePool.length);
+    } while (usedRiddles.has(riddleIdx));
+    usedRiddles.add(riddleIdx);
+    newQuestions[idx] = riddlePool[riddleIdx];
+  }
+  return newQuestions;
 }

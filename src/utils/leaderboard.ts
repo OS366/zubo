@@ -6,6 +6,12 @@ const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
+// Helper to generate a DiceBear avatar URL
+function getAvatarUrl(email: string) {
+  const hash = encodeURIComponent(email.trim().toLowerCase());
+  return `https://api.dicebear.com/7.x/bottts/svg?seed=${hash}`;
+}
+
 // Get all leaderboard entries from Supabase
 export const getLeaderboardEntries = async (): Promise<LeaderboardEntry[]> => {
   try {
@@ -17,21 +23,7 @@ export const getLeaderboardEntries = async (): Promise<LeaderboardEntry[]> => {
 
     if (error) throw error;
 
-    return data.map(entry => ({
-      id: entry.id,
-      firstName: entry.first_name,
-      lastName: entry.last_name,
-      email: entry.email,
-      score: entry.score,
-      livesRemaining: entry.lives_remaining,
-      questionsAnswered: entry.questions_answered,
-      gameStatus: entry.game_status,
-      persona: entry.persona || undefined,
-      completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined,
-      isChallengeRound: entry.is_challenge_round ?? false,
-      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
-    }));
+    return data.map(mapLeaderboardEntry);
   } catch (error) {
     handleSupabaseError(error);
     return [];
@@ -43,9 +35,22 @@ export const saveLeaderboardEntry = async (
   formData: LeaderboardFormData,
   gameState: GameState,
   persona?: string,
-  startTime?: Date
-): Promise<LeaderboardEntry> => {
+  startTime?: Date,
+  sessionDuration?: number
+): Promise<LeaderboardEntry | null> => {
   try {
+    // 1. Check for existing entry
+    const { data: existing, error: fetchError } = await supabase
+      .from('leaderboard')
+      .select('*')
+      .eq('first_name', formData.firstName.trim())
+      .eq('last_name', formData.lastName.trim())
+      .eq('email', formData.email.trim().toLowerCase())
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+    const avatarUrl = getAvatarUrl(formData.email);
     const entry = {
       first_name: formData.firstName.trim(),
       last_name: formData.lastName.trim(),
@@ -56,37 +61,74 @@ export const saveLeaderboardEntry = async (
       game_status: gameState.gameStatus as 'success' | 'failure',
       persona: persona || null,
       completed_at: new Date().toISOString(),
-      time_taken: startTime ? Math.floor((Date.now() - startTime.getTime()) / 1000) : null
+      time_taken: startTime ? Math.floor((Date.now() - startTime.getTime()) / 1000) : null,
+      is_challenge_round: gameState.isChallengeRound ?? false,
+      reached_leaderboard_threshold: gameState.leaderboardEligible ?? false,
+      avatar_url: avatarUrl,
+      age_range: formData.ageRange,
+      answer_history: gameState.answerHistory,
+      session_duration: sessionDuration ?? 0,
+      feedback: formData.feedback || null,
+      rating: formData.rating || null,
     };
 
-    const { data, error } = await supabase
-      .from('leaderboard')
-      .insert([entry])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return {
-      id: data.id,
-      firstName: data.first_name,
-      lastName: data.last_name,
-      email: data.email,
-      score: data.score,
-      livesRemaining: data.lives_remaining,
-      questionsAnswered: data.questions_answered,
-      gameStatus: data.game_status,
-      persona: data.persona || undefined,
-      completedAt: new Date(data.completed_at),
-      timeTaken: data.time_taken || undefined,
-      isChallengeRound: data.is_challenge_round ?? false,
-      reachedLeaderboardThreshold: data.reached_leaderboard_threshold ?? false
-    };
+    if (existing) {
+      // 2. If found, update only if new score is higher
+      if (gameState.score > existing.score) {
+        const { data, error } = await supabase
+          .from('leaderboard')
+          .update(entry)
+          .eq('id', existing.id)
+          .select()
+          .single();
+        if (error) throw error;
+        return mapLeaderboardEntry(data);
+      } else {
+        // Return existing entry if not updated
+        return mapLeaderboardEntry(existing);
+      }
+    } else {
+      // 3. If not found, insert new row
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .insert([entry])
+        .select()
+        .single();
+      if (error) throw error;
+      return mapLeaderboardEntry(data);
+    }
   } catch (error) {
     handleSupabaseError(error);
     throw error;
   }
 };
+
+// Update mapping code to include avatarUrl
+function mapLeaderboardEntry(entry: any): LeaderboardEntry {
+  return {
+    id: entry.id,
+    firstName: entry.first_name,
+    lastName: entry.last_name,
+    email: entry.email,
+    score: entry.score,
+    livesRemaining: entry.lives_remaining,
+    questionsAnswered: entry.questions_answered,
+    gameStatus: entry.game_status,
+    persona: entry.persona || undefined,
+    completedAt: new Date(entry.completed_at),
+    timeTaken: entry.time_taken || undefined,
+    isChallengeRound: entry.is_challenge_round ?? false,
+    reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false,
+    avatarUrl: entry.avatar_url || getAvatarUrl(entry.email),
+    ageRange: entry.age_range || '',
+    answerHistory: entry.answer_history || [],
+    sessionDuration: entry.session_duration || 0,
+    attempts: entry.attempts || 0,
+    feedback: entry.feedback || undefined,
+    rating: entry.rating || undefined,
+    leaderboardRank: entry.leaderboard_rank || undefined,
+  };
+}
 
 // Get top entries (default: top 10)
 export const getTopEntries = async (limit: number = 10): Promise<LeaderboardEntry[]> => {
@@ -100,21 +142,7 @@ export const getTopEntries = async (limit: number = 10): Promise<LeaderboardEntr
 
     if (error) throw error;
 
-    return data.map(entry => ({
-      id: entry.id,
-      firstName: entry.first_name,
-      lastName: entry.last_name,
-      email: entry.email,
-      score: entry.score,
-      livesRemaining: entry.lives_remaining,
-      questionsAnswered: entry.questions_answered,
-      gameStatus: entry.game_status,
-      persona: entry.persona || undefined,
-      completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined,
-      isChallengeRound: entry.is_challenge_round ?? false,
-      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
-    }));
+    return data.map(mapLeaderboardEntry);
   } catch (error) {
     handleSupabaseError(error);
     return [];
@@ -132,21 +160,7 @@ export const getUserEntries = async (email: string): Promise<LeaderboardEntry[]>
 
     if (error) throw error;
 
-    return data.map(entry => ({
-      id: entry.id,
-      firstName: entry.first_name,
-      lastName: entry.last_name,
-      email: entry.email,
-      score: entry.score,
-      livesRemaining: entry.lives_remaining,
-      questionsAnswered: entry.questions_answered,
-      gameStatus: entry.game_status,
-      persona: entry.persona || undefined,
-      completedAt: new Date(entry.completed_at),
-      timeTaken: entry.time_taken || undefined,
-      isChallengeRound: entry.is_challenge_round ?? false,
-      reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false
-    }));
+    return data.map(mapLeaderboardEntry);
   } catch (error) {
     handleSupabaseError(error);
     return [];

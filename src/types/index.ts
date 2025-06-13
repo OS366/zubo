@@ -19,6 +19,8 @@ export interface GameState {
   gameStatus: 'playing' | 'success' | 'failure' | 'menu' | 'store' | 'challenge'; // added challenge status
   isChallengeRound: boolean; // new field to track if we're in the challenge round
   leaderboardEligible: boolean; // new field to track if player is eligible for leaderboard
+  perQuestionTimes: number[]; // seconds taken for each question
+  answerHistory: number[];
 }
 
 export interface LeaderboardEntry {
@@ -35,10 +37,21 @@ export interface LeaderboardEntry {
   timeTaken?: number; // in seconds
   isChallengeRound: boolean; // new field to track if score is from challenge round
   reachedLeaderboardThreshold: boolean; // new field to track if player reached 25 questions
+  avatarUrl: string; // avatar/gravatar URL
+  ageRange: string; // e.g., '10-19', '20-29', etc.
+  answerHistory: number[]; // index of selected answer for each question
+  sessionDuration: number; // total session duration in seconds
+  attempts: number; // number of times this user has played
+  feedback?: string;
+  rating?: number;
+  leaderboardRank?: number;
 }
 
 export interface LeaderboardFormData {
   firstName: string;
   lastName: string;
   email: string;
+  ageRange: string;
+  feedback?: string;
+  rating?: number;
 }
