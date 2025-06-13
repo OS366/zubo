@@ -835,29 +835,14 @@ export function getRandomQuestions(count: number = 50): Question[] {
 }
 
 // Function to get additional 50 questions for the challenge round
-export function getChallengeQuestions(): Question[] {
+export function getChallengeQuestions(count: number = 50): Question[] {
+  // Use the same logic as getRandomQuestions for now
   const questions = [...questionPool];
-  
-  // Get questions that weren't used in the main game
-  const usedQuestionIds = new Set(questions.map(q => q.id));
-  const remainingQuestions = questions.filter(q => !usedQuestionIds.has(q.id));
-  
-  // Ensure we have 25 tough and 25 regular questions
-  const toughQuestions = remainingQuestions.filter(q => q.difficulty === 'tough');
-  const regularQuestions = remainingQuestions.filter(q => q.difficulty !== 'tough');
-  
-  // Take 25 of each type
-  const selectedTough = toughQuestions.slice(0, 25);
-  const selectedRegular = regularQuestions.slice(0, 25);
-  
-  // Combine and shuffle
-  const selectedQuestions = [...selectedTough, ...selectedRegular];
-  for (let i = selectedQuestions.length - 1; i > 0; i--) {
+  for (let i = questions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+    [questions[i], questions[j]] = [questions[j], questions[i]];
   }
-  
-  return selectedQuestions;
+  return questions.slice(0, count);
 }
 
 export function injectRandomRiddles(questions: Question[], count: number = 10): Question[] {
