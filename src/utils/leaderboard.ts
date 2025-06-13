@@ -2,7 +2,8 @@ import { LeaderboardEntry, LeaderboardFormData, GameState } from '../types';
 import { supabase, handleSupabaseError } from './supabase';
 import CryptoJS from 'crypto-js';
 
-const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || '';
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || '';
+console.log('ENCRYPTION_KEY:', ENCRYPTION_KEY ? '[set]' : '[missing]');
 function encryptField(value: string): string {
   if (!ENCRYPTION_KEY) {
     throw new Error('Encryption key missing! Refusing to store plain text.');
