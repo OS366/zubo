@@ -218,8 +218,7 @@ export const Game: React.FC = () => {
   const startChallengeRound = useCallback(() => {
     let questions = getChallengeQuestions();
     questions = injectRandomRiddles(questions, 10);
-    setGameState(prev => ({
-      ...prev,
+    setGameState({
       currentQuestionIndex: 0,
       score: 0,
       lives: 3,
@@ -231,7 +230,7 @@ export const Game: React.FC = () => {
       leaderboardEligible: false,
       perQuestionTimes: [],
       answerHistory: []
-    }));
+    });
     setGameStartTime(new Date());
     setSessionStart(new Date());
     setLeaderboardSaved(false);
