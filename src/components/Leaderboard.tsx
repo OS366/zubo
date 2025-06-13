@@ -15,10 +15,17 @@ const Avatar: React.FC<{
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fallbackUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
-    entry.email || "default"
-  )}`;
-  const defaultUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=default";
+  // Create a unique seed for each user based on their email and name
+  const createUniqueSeed = (entry: LeaderboardEntry): string => {
+    const emailSeed = entry.email || "unknown";
+    const nameSeed = `${entry.firstName}-${entry.lastName}`.toLowerCase();
+    const combinedSeed = `${emailSeed}-${nameSeed}-${entry.id}`;
+    return encodeURIComponent(combinedSeed);
+  };
+
+  const uniqueSeed = createUniqueSeed(entry);
+  const fallbackUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}`;
+  const defaultUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=default-${entry.id}`;
 
   const getImageUrl = () => {
     if (imageError) return defaultUrl;
@@ -31,7 +38,9 @@ const Avatar: React.FC<{
       entry.firstName,
       entry.lastName,
       "URL:",
-      getImageUrl()
+      getImageUrl(),
+      "Seed:",
+      uniqueSeed
     );
     setImageError(true);
     setIsLoading(false);
@@ -42,7 +51,10 @@ const Avatar: React.FC<{
   };
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div
+      className="relative flex-shrink-0"
+      style={{ width: size, height: size }}
+    >
       {isLoading && (
         <div
           className="absolute inset-0 bg-gray-300 rounded-full animate-pulse"
@@ -186,17 +198,18 @@ export const Leaderboard: React.FC = () => {
           </div>
         )}
 
-        <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl">
-          <div className="grid grid-cols-12 gap-4 mb-4 text-gray-400 font-medium px-4">
+        <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl overflow-x-auto">
+          <div className="grid grid-cols-12 gap-4 mb-4 text-gray-400 font-medium px-4 min-w-max">
             <div className="col-span-1 text-center">#</div>
             <div className="col-span-3">Player</div>
             <div className="col-span-2 text-center">Score</div>
             <div className="col-span-2 text-center">Persona</div>
             <div className="col-span-2 text-center">Questions</div>
-            <div className="col-span-2 text-center">Date</div>
-            <div className="col-span-2 text-center flex items-center justify-center gap-1">
+            <div className="col-span-1 text-center">Date</div>
+            <div className="col-span-1 text-center flex items-center justify-center gap-1">
               <TrendingUp className="w-4 h-4" />
-              Percentile
+              <span className="hidden sm:inline">Percentile</span>
+              <span className="sm:hidden">%ile</span>
             </div>
           </div>
 
@@ -204,7 +217,7 @@ export const Leaderboard: React.FC = () => {
             {topEntries.map((entry, index) => (
               <div
                 key={entry.id}
-                className={`grid grid-cols-12 gap-4 items-center p-4 rounded-xl transition-colors ${
+                className={`grid grid-cols-12 gap-4 items-center p-4 rounded-xl transition-colors min-w-max ${
                   index === 0
                     ? "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30"
                     : index === 1
@@ -225,9 +238,9 @@ export const Leaderboard: React.FC = () => {
                     <span className="text-gray-400">{index + 1}</span>
                   )}
                 </div>
-                <div className="col-span-3 flex items-center gap-3">
+                <div className="col-span-3 flex items-center gap-3 min-w-0">
                   <Avatar entry={entry} />
-                  <div className="font-medium text-white">
+                  <div className="font-medium text-white truncate">
                     {entry.firstName} {entry.lastName}
                   </div>
                 </div>
@@ -237,7 +250,7 @@ export const Leaderboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="col-span-2 text-center">
-                  <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300">
+                  <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 truncate">
                     {entry.persona}
                   </div>
                 </div>
@@ -249,12 +262,15 @@ export const Leaderboard: React.FC = () => {
                       : "-"}
                   </div>
                 </div>
-                <div className="col-span-2 text-center text-gray-400">
+                <div className="col-span-1 text-center text-gray-400 text-sm">
                   {entry.completedAt
-                    ? entry.completedAt.toLocaleDateString()
+                    ? entry.completedAt.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })
                     : "-"}
                 </div>
-                <div className="col-span-2 text-center">
+                <div className="col-span-1 text-center">
                   {(() => {
                     if (allEntries.length === 0) {
                       return <div className="text-gray-400">-</div>;
@@ -279,11 +295,11 @@ export const Leaderboard: React.FC = () => {
                       percentile === 100
                         ? "Top"
                         : percentile === 0
-                        ? "Bottom"
+                        ? "Bot"
                         : `${percentile}th`;
 
                     return (
-                      <div className={`text-xl font-bold ${percentileColor}`}>
+                      <div className={`text-lg font-bold ${percentileColor}`}>
                         {displayText}
                       </div>
                     );
