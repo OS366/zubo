@@ -46,7 +46,7 @@ function App() {
         </nav>
         <div className="flex-1">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Game />} />
             <Route path="/about" element={<Home />} />
             <Route path="/game" element={<Game />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
