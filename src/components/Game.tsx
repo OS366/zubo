@@ -218,6 +218,7 @@ export const Game: React.FC = () => {
   const startChallengeRound = useCallback(() => {
     let questions = getChallengeQuestions(50);
     questions = injectRandomRiddles(questions, 10);
+    console.log('Starting challenge round, questions:', questions);
     setGameState({
       currentQuestionIndex: 0,
       score: 0,
@@ -716,6 +717,24 @@ export const Game: React.FC = () => {
   }
 
   // Playing Screen
+  if (gameState.gameStatus === "playing" && gameState.questions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+        <div className="text-center">
+          <div className="text-4xl text-red-400 mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-white mb-2">No Questions Loaded</h1>
+          <p className="text-gray-300 mb-4">There was a problem loading the challenge questions. Please try again.</p>
+          <button
+            onClick={resetGame}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+          >
+            Back to Menu
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={visualSurprise ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700" : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"}>
       <RoamingAnimation />
