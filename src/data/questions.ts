@@ -835,14 +835,14 @@ export function getRandomQuestions(count: number = 50): Question[] {
 }
 
 // Function to get additional 50 questions for the challenge round
-export function getChallengeQuestions(count: number = 50): Question[] {
-  // Use the same logic as getRandomQuestions for now
+export function getChallengeQuestions(): Question[] {
+  // Return all questions in the pool, shuffled
   const questions = [...questionPool];
   for (let i = questions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [questions[i], questions[j]] = [questions[j], questions[i]];
   }
-  return questions.slice(0, count);
+  return questions;
 }
 
 export function injectRandomRiddles(questions: Question[], count: number = 10): Question[] {

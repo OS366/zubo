@@ -9,6 +9,8 @@ import { saveLeaderboardEntry, getUserEntries, getLeaderboardEntries } from "../
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
 import logo from '../assets/logo.png';
 
+const THRESHOLD_QUESTIONS = Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
+
 // Roaming animation component
 const RoamingAnimation: React.FC = () => {
   const [pos, setPos] = useState({ top: '50%', left: '50%' });
@@ -216,7 +218,7 @@ export const Game: React.FC = () => {
   }, []);
 
   const startChallengeRound = useCallback(() => {
-    let questions = getChallengeQuestions(50);
+    let questions = getChallengeQuestions();
     questions = injectRandomRiddles(questions, 10);
     console.log('Starting challenge round, questions:', questions);
     setGameState({
@@ -283,7 +285,7 @@ export const Game: React.FC = () => {
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const newLives = loseLife ? prev.lives - 1 : prev.lives;
         const newAnsweredQuestions = prev.answeredQuestions + 1;
-        const newLeaderboardEligible = newAnsweredQuestions >= 5 || prev.leaderboardEligible;
+        const newLeaderboardEligible = newAnsweredQuestions >= THRESHOLD_QUESTIONS || prev.leaderboardEligible;
 
         // Random life gain (20% chance on correct answers, 1% for +3 lives)
         let finalLives = newLives;
@@ -552,7 +554,7 @@ export const Game: React.FC = () => {
                 gameResult="success"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= 5}
+                reachedThreshold={gameState.answeredQuestions >= THRESHOLD_QUESTIONS}
               />
             </div>
           ) : leaderboardSaved ? (
@@ -615,7 +617,7 @@ export const Game: React.FC = () => {
             <p className="text-xl text-gray-300 mb-8">
               {gameState.lives <= 0
                 ? "You've run out of lives! Don't give up - try again or visit the store for more lives."
-                : `You scored ${gameState.score}/50. You need at least 5 questions answered to be eligible for the leaderboard.`}
+                : `You scored ${gameState.score}/50. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`}
             </p>
           </div>
 
@@ -653,7 +655,7 @@ export const Game: React.FC = () => {
                 gameResult="failure"
                 score={gameState.score}
                 isChallengeRound={gameState.isChallengeRound}
-                reachedThreshold={gameState.answeredQuestions >= 5}
+                reachedThreshold={gameState.answeredQuestions >= THRESHOLD_QUESTIONS}
               />
             </div>
           ) : leaderboardSaved ? (
