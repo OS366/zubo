@@ -315,6 +315,7 @@ export const Game: React.FC = () => {
         if (isCorrect && Math.random() < 0.2) {
           return {
             ...prev,
+            currentQuestionIndex: prev.currentQuestionIndex + 1,
             lives: newLives + 1,
             livesGained: prev.livesGained + 1,
             answeredQuestions: newAnsweredQuestions,
