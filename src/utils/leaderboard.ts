@@ -1,5 +1,23 @@
 import { LeaderboardEntry, LeaderboardFormData, GameState } from '../types';
 import { supabase, handleSupabaseError } from './supabase';
+import CryptoJS from 'crypto-js';
+
+const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || '';
+function encryptField(value: string): string {
+  if (!ENCRYPTION_KEY) {
+    throw new Error('Encryption key missing! Refusing to store plain text.');
+  }
+  return CryptoJS.AES.encrypt(value, ENCRYPTION_KEY).toString();
+}
+function decryptField(value: string): string {
+  if (!ENCRYPTION_KEY) return value;
+  try {
+    const bytes = CryptoJS.AES.decrypt(value, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8) || value;
+  } catch {
+    return value;
+  }
+}
 
 // Generate a unique ID for each entry
 const generateId = (): string => {
@@ -50,14 +68,15 @@ export const saveLeaderboardEntry = async (
 
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
-    const avatarUrl = getAvatarUrl(formData.email);
+    const plainEmail = formData.email.trim().toLowerCase();
+    const avatarUrl = getAvatarUrl(plainEmail);
     const entry = {
-      first_name: formData.firstName.trim(),
-      last_name: formData.lastName.trim(),
-      email: formData.email.trim().toLowerCase(),
+      first_name: encryptField(formData.firstName.trim()),
+      last_name: encryptField(formData.lastName.trim()),
+      email: encryptField(plainEmail),
       score: gameState.score,
       lives_remaining: gameState.lives,
-      questions_answered: gameState.answeredQuestions,
+      questions_answered: typeof gameState.answeredQuestions === 'number' ? gameState.answeredQuestions : 0,
       game_status: gameState.gameStatus as 'success' | 'failure',
       persona: persona || null,
       completed_at: new Date().toISOString(),
@@ -68,7 +87,7 @@ export const saveLeaderboardEntry = async (
       age_range: formData.ageRange,
       answer_history: gameState.answerHistory,
       session_duration: sessionDuration ?? 0,
-      feedback: formData.feedback || null,
+      feedback: encryptField(formData.feedback || ''),
       rating: formData.rating || null,
     };
 
@@ -107,24 +126,24 @@ export const saveLeaderboardEntry = async (
 function mapLeaderboardEntry(entry: any): LeaderboardEntry {
   return {
     id: entry.id,
-    firstName: entry.first_name,
-    lastName: entry.last_name,
-    email: entry.email,
+    firstName: decryptField(entry.first_name),
+    lastName: decryptField(entry.last_name),
+    email: decryptField(entry.email),
     score: entry.score,
     livesRemaining: entry.lives_remaining,
-    questionsAnswered: entry.questions_answered,
+    questionsAnswered: typeof entry.questions_answered === 'number' ? entry.questions_answered : 0,
     gameStatus: entry.game_status,
     persona: entry.persona || undefined,
-    completedAt: new Date(entry.completed_at),
+    completedAt: entry.completed_at ? new Date(entry.completed_at) : new Date(0),
     timeTaken: entry.time_taken || undefined,
     isChallengeRound: entry.is_challenge_round ?? false,
     reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false,
-    avatarUrl: entry.avatar_url || getAvatarUrl(entry.email),
+    avatarUrl: entry.avatar_url || getAvatarUrl(decryptField(entry.email)),
     ageRange: entry.age_range || '',
     answerHistory: entry.answer_history || [],
     sessionDuration: entry.session_duration || 0,
     attempts: entry.attempts || 0,
-    feedback: entry.feedback || undefined,
+    feedback: decryptField(entry.feedback) || undefined,
     rating: entry.rating || undefined,
     leaderboardRank: entry.leaderboard_rank || undefined,
   };
