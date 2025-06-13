@@ -78,6 +78,8 @@ export const Game: React.FC = () => {
   const [userAttempts, setUserAttempts] = useState<number | null>(null);
   const [userRank, setUserRank] = useState<number | null>(null);
 
+  const [emailError, setEmailError] = useState<string | null>(null);
+
   // Debug: Log game state changes
   useEffect(() => {
     console.log("Game state changed:", {
@@ -413,23 +415,34 @@ export const Game: React.FC = () => {
   const handleLeaderboardSubmit = async (formData: LeaderboardFormData) => {
     try {
       setSavingToLeaderboard(true);
+      setEmailError(null);
       const topPersona = calculatePersona(gameState.personaScores);
       const sessionDuration = sessionStart && sessionEnd ? Math.round((sessionEnd.getTime() - sessionStart.getTime()) / 1000) : 0;
       const leaderboardEntry = await saveLeaderboardEntry(formData, gameState, topPersona, gameStartTime ?? undefined, sessionDuration);
       setLeaderboardSaved(true);
       // Send congratulatory email
       if (leaderboardEntry) {
-        await fetch('/.netlify/functions/send-leaderboard-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: formData.email,
-            firstName: formData.firstName,
-            avatarUrl: leaderboardEntry.avatarUrl,
-            lives: leaderboardEntry.livesRemaining,
-            easterEggs: easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises,
-          }),
-        });
+        try {
+          const res = await fetch('/.netlify/functions/send-leaderboard-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: formData.email,
+              firstName: formData.firstName,
+              avatarUrl: leaderboardEntry.avatarUrl,
+              lives: leaderboardEntry.livesRemaining,
+              easterEggs: easterEggs.riddles + easterEggs.bonusLives + easterEggs.visualSurprises,
+            }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            setEmailError(data.error || 'Failed to send email');
+            console.error('Email send failed:', data.error || res.statusText);
+          }
+        } catch (err) {
+          setEmailError((err as Error).message || 'Failed to send email');
+          console.error('Email send error:', err);
+        }
       }
 
       const userEntries = await getUserEntries(formData.email);
@@ -616,6 +629,12 @@ export const Game: React.FC = () => {
               Play Again
             </button>
           </div>
+
+          {emailError && (
+            <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl">
+              <span className="font-bold">Email Error:</span> {emailError}
+            </div>
+          )}
         </div>
         <DebugPanel gameState={gameState} />
       </div>
@@ -729,6 +748,12 @@ export const Game: React.FC = () => {
               </>
             )}
           </div>
+
+          {emailError && (
+            <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl">
+              <span className="font-bold">Email Error:</span> {emailError}
+            </div>
+          )}
         </div>
         <DebugPanel gameState={gameState} />
       </div>
