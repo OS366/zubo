@@ -9,10 +9,32 @@ exports.handler = async (event) => {
   }
 
   const { to, firstName, avatarUrl, lives, easterEggs } = JSON.parse(event.body || '{}');
+  
+  // Enhanced validation
   if (!to || !firstName || !avatarUrl) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Missing required fields' }),
+      body: JSON.stringify({ 
+        error: 'Missing required fields',
+        received: { to: !!to, firstName: !!firstName, avatarUrl: !!avatarUrl }
+      }),
+    };
+  }
+
+  // Check if API key is available
+  if (!process.env.RESEND_API_KEY) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'RESEND_API_KEY environment variable not set' }),
+    };
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Invalid email address format', email: to }),
     };
   }
 
@@ -34,6 +56,16 @@ exports.handler = async (event) => {
   `;
 
   try {
+    // Log the request for debugging
+    console.log('Sending email request:', {
+      to,
+      firstName,
+      avatarUrl,
+      lives,
+      easterEggs,
+      hasApiKey: !!process.env.RESEND_API_KEY
+    });
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -47,21 +79,30 @@ exports.handler = async (event) => {
         html,
       }),
     });
+    
     const data = await response.json();
+    console.log('Resend API response:', { status: response.status, data });
+    
     if (!response.ok) {
+      // Return detailed error information
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.error || 'Failed to send email' }),
+        body: JSON.stringify({ 
+          error: data.message || data.error || 'Failed to send email',
+          details: data,
+          status: response.status
+        }),
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true }),
+      body: JSON.stringify({ success: true, data }),
     };
   } catch (err) {
+    console.error('Email function error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: err.message, stack: err.stack }),
     };
   }
 }; 
