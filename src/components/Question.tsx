@@ -207,7 +207,7 @@ export const Question: React.FC<QuestionProps> = ({
 
   return (
     <div
-      className="max-w-4xl mx-auto select-none no-select no-drag question-container"
+      className="max-w-4xl mx-auto select-none no-select no-drag question-container relative z-50"
       onCopy={preventClipboardOperations}
       onPaste={preventClipboardOperations}
       onCut={preventClipboardOperations}
@@ -251,53 +251,41 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Countdown Animation */}
       {showCountdown && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="relative">
-            <div
-              className="text-9xl font-bold text-red-500 animate-bounce drop-shadow-2xl"
-              style={{
-                textShadow:
-                  "0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.7), 0 0 90px rgba(239, 68, 68, 0.5)",
-                animation: "countdown-pulse 1s ease-in-out infinite",
-              }}
-            >
-              {countdownNumber}
-            </div>
-            <div className="absolute inset-0 text-9xl font-bold text-white opacity-20 animate-ping">
-              {countdownNumber}
+        <div className="fixed inset-0 z-40 pointer-events-none">
+          {/* Background overlay - non-blocking */}
+          <div className="absolute inset-0 bg-red-900/20 animate-pulse pointer-events-none" />
+
+          {/* Countdown number - centered */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="relative">
+              <div
+                className="text-9xl font-bold text-red-500 animate-bounce drop-shadow-2xl pointer-events-none"
+                style={{
+                  textShadow:
+                    "0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.7), 0 0 90px rgba(239, 68, 68, 0.5)",
+                  animation: "countdown-pulse 1s ease-in-out infinite",
+                }}
+              >
+                {countdownNumber}
+              </div>
+              <div className="absolute inset-0 text-9xl font-bold text-white opacity-20 animate-ping pointer-events-none">
+                {countdownNumber}
+              </div>
             </div>
           </div>
-          <div className="absolute inset-0 bg-red-900/30 animate-pulse" />
-          <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2">
-            <div className="text-2xl font-bold text-red-300 animate-pulse text-center">
+
+          {/* Warning text - positioned at bottom */}
+          <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <div className="text-2xl font-bold text-red-300 animate-pulse text-center pointer-events-none">
               ⚠️ TIME RUNNING OUT! ⚠️
             </div>
           </div>
         </div>
       )}
 
-      {/* Countdown Animation */}
-      {showCountdown && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="animate-pulse">
-            <div
-              className="text-9xl font-bold text-red-500 animate-bounce"
-              style={{
-                textShadow:
-                  "0 0 20px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.6)",
-                animation: "countdown-pulse 1s ease-in-out infinite",
-              }}
-            >
-              {countdownNumber}
-            </div>
-          </div>
-          <div className="absolute inset-0 bg-red-900/20 animate-pulse" />
-        </div>
-      )}
-
       {/* Question Card */}
       <div
-        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none"
+        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none relative z-50"
         onCopy={preventClipboardOperations}
         onPaste={preventClipboardOperations}
         onCut={preventClipboardOperations}
