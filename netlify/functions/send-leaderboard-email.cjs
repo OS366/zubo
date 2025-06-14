@@ -148,7 +148,7 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
+        from: 'zubo@davidlabs.ca',
         to,
         subject: 'Congratulations on reaching the Zubo Leaderboard!',
         html,
