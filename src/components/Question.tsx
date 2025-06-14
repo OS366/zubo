@@ -27,18 +27,34 @@ export const Question: React.FC<QuestionProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false); // Hidden timer - users don't see countdown
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [countdownNumber, setCountdownNumber] = useState(5);
   const startTimeRef = useRef<Date>(new Date());
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   // Reset state when question changes and record start time
   useEffect(() => {
     setSelectedAnswer(null);
     setShowTimer(false); // Hidden timer - users don't see countdown
+    setShowCountdown(false);
+    setCountdownNumber(5);
     startTimeRef.current = new Date();
 
-    // Clear any existing timeout
+    // Clear any existing timeouts
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+    }
+    if (countdownRef.current) {
+      clearTimeout(countdownRef.current);
+    }
+
+    // Start countdown 5 seconds before timeout
+    const countdownStartTime = (timeLimit - 5) * 1000;
+    if (countdownStartTime > 0) {
+      countdownRef.current = setTimeout(() => {
+        startCountdown();
+      }, countdownStartTime);
     }
 
     // Set hidden timeout for time limit
@@ -46,19 +62,44 @@ export const Question: React.FC<QuestionProps> = ({
       handleTimeout();
     }, timeLimit * 1000);
 
-    // Cleanup timeout on unmount or question change
+    // Cleanup timeouts on unmount or question change
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      if (countdownRef.current) {
+        clearTimeout(countdownRef.current);
+      }
     };
   }, [question.id, timeLimit]);
 
+  const startCountdown = () => {
+    setShowCountdown(true);
+    setCountdownNumber(5);
+
+    const countdownInterval = setInterval(() => {
+      setCountdownNumber((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setShowCountdown(false);
+          return 5;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleAnswer = (index: number, wasTimeout: boolean = false) => {
-    // Clear the timeout when user answers
+    // Clear all timeouts when user answers
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
+    if (countdownRef.current) {
+      clearTimeout(countdownRef.current);
+    }
+
+    // Hide countdown if showing
+    setShowCountdown(false);
 
     const endTime = new Date();
     const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
@@ -208,6 +249,52 @@ export const Question: React.FC<QuestionProps> = ({
         />
       )}
 
+      {/* Countdown Animation */}
+      {showCountdown && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="relative">
+            <div
+              className="text-9xl font-bold text-red-500 animate-bounce drop-shadow-2xl"
+              style={{
+                textShadow:
+                  "0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.7), 0 0 90px rgba(239, 68, 68, 0.5)",
+                animation: "countdown-pulse 1s ease-in-out infinite",
+              }}
+            >
+              {countdownNumber}
+            </div>
+            <div className="absolute inset-0 text-9xl font-bold text-white opacity-20 animate-ping">
+              {countdownNumber}
+            </div>
+          </div>
+          <div className="absolute inset-0 bg-red-900/30 animate-pulse" />
+          <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2">
+            <div className="text-2xl font-bold text-red-300 animate-pulse text-center">
+              ⚠️ TIME RUNNING OUT! ⚠️
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Countdown Animation */}
+      {showCountdown && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="animate-pulse">
+            <div
+              className="text-9xl font-bold text-red-500 animate-bounce"
+              style={{
+                textShadow:
+                  "0 0 20px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.6)",
+                animation: "countdown-pulse 1s ease-in-out infinite",
+              }}
+            >
+              {countdownNumber}
+            </div>
+          </div>
+          <div className="absolute inset-0 bg-red-900/20 animate-pulse" />
+        </div>
+      )}
+
       {/* Question Card */}
       <div
         className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none"
@@ -273,6 +360,24 @@ export const Question: React.FC<QuestionProps> = ({
           ))}
         </div>
       </div>
+
+      {/* CSS for countdown animation */}
+      <style jsx>{`
+        @keyframes countdown-pulse {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 };
