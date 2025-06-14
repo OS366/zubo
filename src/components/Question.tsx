@@ -26,17 +26,40 @@ export const Question: React.FC<QuestionProps> = ({
   timeLimit = 60, // Default to 60 seconds if not provided
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showTimer, setShowTimer] = useState(false); // Always false - no timer
+  const [showTimer, setShowTimer] = useState(false); // Hidden timer - users don't see countdown
   const startTimeRef = useRef<Date>(new Date());
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Reset state when question changes and record start time
   useEffect(() => {
     setSelectedAnswer(null);
-    setShowTimer(false); // Always false - no timer
+    setShowTimer(false); // Hidden timer - users don't see countdown
     startTimeRef.current = new Date();
-  }, [question.id]);
+
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set hidden timeout for time limit
+    timeoutRef.current = setTimeout(() => {
+      handleTimeout();
+    }, timeLimit * 1000);
+
+    // Cleanup timeout on unmount or question change
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [question.id, timeLimit]);
 
   const handleAnswer = (index: number, wasTimeout: boolean = false) => {
+    // Clear the timeout when user answers
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     const endTime = new Date();
     const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
 

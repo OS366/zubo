@@ -1119,6 +1119,7 @@ export const Game: React.FC = () => {
         onAnswer={handleAnswer}
         questionNumber={gameState.currentQuestionIndex + 1}
         totalQuestions={gameState.questions.length}
+        timeLimit={gameState.currentStage.timeLimit}
       />
 
       <DebugPanel gameState={gameState} />
