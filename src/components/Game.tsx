@@ -105,8 +105,10 @@ export const Game: React.FC = () => {
 
         setGameState((prev) => {
           const newLives = prev.lives + livesToAdd;
+          const hasActiveGame = prev.questions.length > 0;
           const shouldResume =
-            prev.gameStatus === "failure" && prev.questions.length > 0;
+            (prev.gameStatus === "failure" || prev.gameStatus === "store") &&
+            hasActiveGame;
 
           console.log("State update decision:", {
             oldLives: prev.lives,
@@ -114,6 +116,7 @@ export const Game: React.FC = () => {
             shouldResume,
             hasQuestions: prev.questions.length > 0,
             currentQuestion: prev.currentQuestionIndex + 1,
+            currentStatus: prev.gameStatus,
           });
 
           return {
@@ -152,14 +155,17 @@ export const Game: React.FC = () => {
 
           setGameState((prev) => {
             const newLives = prev.lives + livesToAdd;
+            const hasActiveGame = prev.questions.length > 0;
             const shouldResume =
-              prev.gameStatus === "failure" && prev.questions.length > 0;
+              (prev.gameStatus === "failure" || prev.gameStatus === "store") &&
+              hasActiveGame;
 
             console.log("Focus event - State update:", {
               oldLives: prev.lives,
               newLives,
               shouldResume,
               currentQuestion: prev.currentQuestionIndex + 1,
+              currentStatus: prev.gameStatus,
             });
 
             return {
@@ -189,10 +195,10 @@ export const Game: React.FC = () => {
   const startGame = useCallback(() => {
     let questions = getRandomQuestions(100); // Now using 100 questions for 4 stages
     questions = injectRandomRiddles(questions, 10);
-    setGameState({
+    setGameState((prev) => ({
       currentQuestionIndex: 0,
       score: 0,
-      lives: 3,
+      lives: 3 + prev.livesBought, // Preserve purchased lives
       questions,
       answeredQuestions: 0,
       personaScores: {},
@@ -202,11 +208,11 @@ export const Game: React.FC = () => {
       perQuestionTimes: [],
       questionTimings: [],
       answerHistory: [],
-      livesBought: 0,
+      livesBought: prev.livesBought, // Keep track of purchased lives
       livesGained: 0,
       timeBank: initializeTimeBank(),
       currentStage: GAME_STAGES[0],
-    });
+    }));
     setGameStartTime(new Date());
     setSessionStart(new Date());
     setLeaderboardSaved(false);
@@ -216,10 +222,10 @@ export const Game: React.FC = () => {
     let questions = getChallengeQuestions();
     questions = injectRandomRiddles(questions, 10);
     console.log("Starting challenge round, questions:", questions);
-    setGameState({
+    setGameState((prev) => ({
       currentQuestionIndex: 0,
       score: 0,
-      lives: 3,
+      lives: 3 + prev.livesBought, // Preserve purchased lives
       questions,
       answeredQuestions: 0,
       personaScores: {},
@@ -229,11 +235,11 @@ export const Game: React.FC = () => {
       perQuestionTimes: [],
       questionTimings: [],
       answerHistory: [],
-      livesBought: 0,
+      livesBought: prev.livesBought, // Keep track of purchased lives
       livesGained: 0,
       timeBank: initializeTimeBank(),
       currentStage: GAME_STAGES[0],
-    });
+    }));
     setGameStartTime(new Date());
     setSessionStart(new Date());
     setLeaderboardSaved(false);
@@ -406,6 +412,13 @@ export const Game: React.FC = () => {
       // If user has lives and an active game, return to playing; otherwise go to failure screen
       const hasActiveGame = prev.questions.length > 0;
       const hasLives = prev.lives > 0;
+
+      console.log("Closing store:", {
+        hasActiveGame,
+        hasLives,
+        lives: prev.lives,
+        questions: prev.questions.length,
+      });
 
       if (hasActiveGame && hasLives) {
         return { ...prev, gameStatus: "playing" };
@@ -927,7 +940,7 @@ export const Game: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-lg mr-1">⏰</span>
                 <span className="text-white text-sm font-medium">
-                  {formatTime(gameState.timeBank.totalSeconds)}
+                  {gameState.timeBank.totalSeconds}s
                 </span>
                 {gameState.timeBank.earnedThisQuestion > 0 && (
                   <span className="ml-1 text-xs text-green-400 animate-pulse">
