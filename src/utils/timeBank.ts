@@ -72,6 +72,11 @@ export function addTimeToBank(timeBank: TimeBank, secondsEarned: number): TimeBa
 
 // Trade time for lives (1000 seconds = 1 life)
 export function tradeTimeForLives(timeBank: TimeBank, livesToBuy: number): TimeBank | null {
+  // Validate input
+  if (livesToBuy <= 0) {
+    return null;
+  }
+  
   const timeRequired = livesToBuy * TIME_TO_LIFE_RATIO;
   
   if (timeBank.totalSeconds >= timeRequired) {
