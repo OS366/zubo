@@ -25,11 +25,20 @@ const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
-// Helper to generate a DiceBear avatar URL
+// Helper to generate a DiceBear avatar URL with fallback
 function getAvatarUrl(email: string) {
   const cleanEmail = email.trim().toLowerCase();
-  const hash = encodeURIComponent(cleanEmail);
-  const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${hash}`;
+  // Create a simple hash from email for consistent avatars
+  let hash = 0;
+  for (let i = 0; i < cleanEmail.length; i++) {
+    const char = cleanEmail.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  const seed = Math.abs(hash).toString();
+  
+  // Use avataaars style which is more reliable and human-like
+  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
   console.log('Generated avatar URL for', cleanEmail, ':', avatarUrl);
   return avatarUrl;
 }

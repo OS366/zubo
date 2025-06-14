@@ -102,7 +102,7 @@ function App() {
                     to: email,
                     firstName: "Test User",
                     avatarUrl:
-                      "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=test&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf",
                     lives: 3,
                     easterEggs: 2,
                     score: 85,
@@ -153,7 +153,7 @@ function App() {
                     to: email,
                     firstName: "Debug Test",
                     avatarUrl:
-                      "https://api.dicebear.com/7.x/avataaars/svg?seed=debug",
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=debug&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf",
                     lives: 2,
                     easterEggs: 1,
                   }),

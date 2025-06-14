@@ -20,12 +20,20 @@ const Avatar: React.FC<{
     const emailSeed = entry.email || "unknown";
     const nameSeed = `${entry.firstName}-${entry.lastName}`.toLowerCase();
     const combinedSeed = `${emailSeed}-${nameSeed}-${entry.id}`;
-    return encodeURIComponent(combinedSeed);
+
+    // Create a simple hash for consistent avatars
+    let hash = 0;
+    for (let i = 0; i < combinedSeed.length; i++) {
+      const char = combinedSeed.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString();
   };
 
   const uniqueSeed = createUniqueSeed(entry);
-  const fallbackUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}`;
-  const defaultUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=default-${entry.id}`;
+  const fallbackUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${uniqueSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+  const defaultUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=default-${entry.id}&backgroundColor=f3f4f6`;
 
   const getImageUrl = () => {
     if (imageError) return defaultUrl;
