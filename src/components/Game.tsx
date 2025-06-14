@@ -32,76 +32,6 @@ import logo from "../assets/logo.png";
 const THRESHOLD_QUESTIONS =
   Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
 
-// Add this debug panel component at the top of the Game component
-const DebugPanel = ({ gameState }: { gameState: any }) => (
-  <div
-    style={{
-      position: "fixed",
-      bottom: 0,
-      right: 0,
-      background: "#222",
-      color: "#fff",
-      padding: 12,
-      zIndex: 9999,
-      fontSize: 12,
-      borderRadius: 8,
-      opacity: 0.9,
-    }}
-  >
-    <div>
-      <b>DEBUG</b>
-    </div>
-    <div>gameStatus: {gameState.gameStatus}</div>
-    <div>questions.length: {gameState.questions.length}</div>
-    <div>currentQuestionIndex: {gameState.currentQuestionIndex}</div>
-    <div>answeredQuestions: {gameState.answeredQuestions}</div>
-    <div>lives: {gameState.lives}</div>
-    <div>isChallengeRound: {String(gameState.isChallengeRound)}</div>
-    <div>leaderboardEligible: {String(gameState.leaderboardEligible)}</div>
-    {gameState.questionTimings && gameState.questionTimings.length > 0 && (
-      <div>
-        <div>
-          <b>TIMING STATS</b>
-        </div>
-        <div>
-          Avg Time:{" "}
-          {Math.round(
-            gameState.questionTimings.reduce(
-              (sum: number, t: any) => sum + t.timeTaken,
-              0
-            ) /
-              gameState.questionTimings.length /
-              1000
-          )}
-          s
-        </div>
-        <div>
-          Fastest:{" "}
-          {Math.round(
-            Math.min(
-              ...gameState.questionTimings.map((t: any) => t.timeTaken)
-            ) / 1000
-          )}
-          s
-        </div>
-        <div>
-          Slowest:{" "}
-          {Math.round(
-            Math.max(
-              ...gameState.questionTimings.map((t: any) => t.timeTaken)
-            ) / 1000
-          )}
-          s
-        </div>
-        <div>
-          Timeouts:{" "}
-          {gameState.questionTimings.filter((t: any) => t.wasTimeout).length}
-        </div>
-      </div>
-    )}
-  </div>
-);
-
 export const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     currentQuestionIndex: 0,
@@ -665,7 +595,6 @@ export const Game: React.FC = () => {
             Play the Challenge
           </button>
         </div>
-        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -798,7 +727,6 @@ export const Game: React.FC = () => {
             </div>
           )}
         </div>
-        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -918,7 +846,6 @@ export const Game: React.FC = () => {
             </div>
           )}
         </div>
-        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -943,7 +870,6 @@ export const Game: React.FC = () => {
             Back to Menu
           </button>
         </div>
-        <DebugPanel gameState={gameState} />
       </div>
     );
   }
@@ -1121,8 +1047,6 @@ export const Game: React.FC = () => {
         totalQuestions={gameState.questions.length}
         timeLimit={gameState.currentStage.timeLimit}
       />
-
-      <DebugPanel gameState={gameState} />
 
       {/* Stage Transition Animation */}
       <BalloonAnimation
