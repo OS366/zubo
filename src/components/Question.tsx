@@ -207,7 +207,7 @@ export const Question: React.FC<QuestionProps> = ({
 
   return (
     <div
-      className="max-w-4xl mx-auto select-none no-select no-drag question-container relative z-50"
+      className="max-w-4xl mx-auto select-none no-select no-drag question-container relative z-10"
       onCopy={preventClipboardOperations}
       onPaste={preventClipboardOperations}
       onCut={preventClipboardOperations}
@@ -251,7 +251,7 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Countdown Animation */}
       {showCountdown && (
-        <div className="fixed inset-0 z-40 pointer-events-none">
+        <div className="fixed inset-0 z-[60] pointer-events-none">
           {/* Background overlay - non-blocking */}
           <div className="absolute inset-0 bg-red-900/20 animate-pulse pointer-events-none" />
 
@@ -285,7 +285,7 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Question Card */}
       <div
-        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none relative z-50"
+        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none relative z-20"
         onCopy={preventClipboardOperations}
         onPaste={preventClipboardOperations}
         onCut={preventClipboardOperations}
