@@ -496,6 +496,10 @@ export const Game: React.FC = () => {
                 firstName: formData.firstName,
                 avatarUrl: leaderboardEntry.avatarUrl,
                 lives: leaderboardEntry.livesRemaining,
+                easterEggs: 0, // TODO: Track easter eggs properly
+                score: gameState.score,
+                questionsAnswered: gameState.answeredQuestions,
+                persona: calculatePersona(gameState.personaScores),
               }),
             }
           );

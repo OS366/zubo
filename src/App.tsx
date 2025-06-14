@@ -58,6 +58,115 @@ function App() {
           </Routes>
         </div>
         <Footer />
+
+        {/* Temporary Email Debug Panel - Back until email is fixed */}
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: "#1f2937",
+            border: "1px solid #374151",
+            borderRadius: "8px",
+            padding: "16px",
+            zIndex: 1000,
+            minWidth: "300px",
+          }}
+        >
+          <h3 style={{ color: "#fff", margin: "0 0 12px 0", fontSize: "14px" }}>
+            Email Debug Panel
+          </h3>
+
+          <button
+            style={{
+              margin: "4px",
+              padding: "8px 12px",
+              background: "#dc2626",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+            onClick={() => {
+              fetch("/.netlify/functions/send-leaderboard-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  to: "test@example.com",
+                  firstName: "Test User",
+                  avatarUrl:
+                    "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
+                  lives: 3,
+                  easterEggs: 2,
+                }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  console.log("Email test response:", data);
+                  alert(
+                    "Email test response: " + JSON.stringify(data, null, 2)
+                  );
+                })
+                .catch((err) => {
+                  console.error("Email test error:", err);
+                  alert("Email test error: " + err.message);
+                });
+            }}
+          >
+            Test Email Function
+          </button>
+
+          <button
+            style={{
+              margin: "4px",
+              padding: "8px 12px",
+              background: "#059669",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+            onClick={() => {
+              const email = prompt("Enter email address to test:");
+              if (email) {
+                fetch("/.netlify/functions/send-leaderboard-email", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    to: email,
+                    firstName: "Debug Test",
+                    avatarUrl:
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=debug",
+                    lives: 2,
+                    easterEggs: 1,
+                  }),
+                })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    console.log("Real email test response:", data);
+                    alert(
+                      "Real email sent to " +
+                        email +
+                        ": " +
+                        JSON.stringify(data, null, 2)
+                    );
+                  })
+                  .catch((err) => {
+                    console.error("Real email test error:", err);
+                    alert("Real email test error: " + err.message);
+                  });
+              }
+            }}
+          >
+            Send Real Test Email
+          </button>
+
+          <div style={{ marginTop: "8px", fontSize: "11px", color: "#9ca3af" }}>
+            Check browser console for detailed logs
+          </div>
+        </div>
       </div>
     </Router>
   );

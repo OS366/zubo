@@ -61,13 +61,11 @@ export const saveLeaderboardEntry = async (
   sessionDuration?: number
 ): Promise<LeaderboardEntry | null> => {
   try {
-    // 1. Check for existing entry
+    // 1. Check for existing entry by email only (since names can have different cases)
     const { data: existing, error: fetchError } = await supabase
       .from('leaderboard')
       .select('*')
-      .eq('first_name', formData.firstName.trim())
-      .eq('last_name', formData.lastName.trim())
-      .eq('email', formData.email.trim().toLowerCase())
+      .eq('email', encryptField(formData.email.trim().toLowerCase()))
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
