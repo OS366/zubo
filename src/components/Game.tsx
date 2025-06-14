@@ -384,6 +384,10 @@ export const Game: React.FC = () => {
         }
 
         if (isCorrect && Math.random() < 0.2) {
+          // Trigger life gained animation
+          setShowLifeGained(true);
+          setTimeout(() => setShowLifeGained(false), 3000);
+
           return {
             ...prev,
             currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -920,11 +924,16 @@ export const Game: React.FC = () => {
 
       {/* Life Gained Animation */}
       {showLifeGained && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-          <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-2xl animate-pulse">
-            <div className="flex items-center">
-              <Heart className="w-8 h-8 mr-3" />
-              <span className="text-2xl font-bold">+1 Life Gained!</span>
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-bounce">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-6 rounded-2xl shadow-2xl border-4 border-green-300 animate-pulse">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin mr-3">
+                <Heart className="w-10 h-10 text-red-300" fill="currentColor" />
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-1">+1 Life Gained!</div>
+                <div className="text-lg opacity-90">🎉 Lucky bonus! 🎉</div>
+              </div>
             </div>
           </div>
         </div>
