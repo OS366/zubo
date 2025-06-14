@@ -33,23 +33,37 @@ const THRESHOLD_QUESTIONS =
   Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
 
 export const Game: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>({
-    currentQuestionIndex: 0,
-    score: 0,
-    lives: 3,
-    questions: [],
-    answeredQuestions: 0,
-    personaScores: {},
-    gameStatus: "menu",
-    isChallengeRound: false,
-    leaderboardEligible: false,
-    perQuestionTimes: [],
-    questionTimings: [],
-    answerHistory: [],
-    livesBought: 0,
-    livesGained: 0,
-    timeBank: initializeTimeBank(),
-    currentStage: GAME_STAGES[0],
+  // Initialize game state from localStorage if available
+  const [gameState, setGameState] = useState<GameState>(() => {
+    try {
+      const savedState = localStorage.getItem("zubo-game-state");
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        console.log("Restored game state from localStorage:", parsed);
+        return parsed;
+      }
+    } catch (error) {
+      console.error("Failed to restore game state:", error);
+    }
+
+    return {
+      currentQuestionIndex: 0,
+      score: 0,
+      lives: 3,
+      questions: [],
+      answeredQuestions: 0,
+      personaScores: {},
+      gameStatus: "menu",
+      isChallengeRound: false,
+      leaderboardEligible: false,
+      perQuestionTimes: [],
+      questionTimings: [],
+      answerHistory: [],
+      livesBought: 0,
+      livesGained: 0,
+      timeBank: initializeTimeBank(),
+      currentStage: GAME_STAGES[0],
+    };
   });
 
   const [showLifeGained, setShowLifeGained] = useState(false);
@@ -71,6 +85,22 @@ export const Game: React.FC = () => {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [showStageTransition, setShowStageTransition] = useState(false);
   const [transitionStage, setTransitionStage] = useState(GAME_STAGES[0]);
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
+
+  // Save game state to localStorage whenever it changes (except when in menu)
+  useEffect(() => {
+    if (gameState.gameStatus !== "menu") {
+      try {
+        localStorage.setItem("zubo-game-state", JSON.stringify(gameState));
+        console.log("Saved game state to localStorage");
+      } catch (error) {
+        console.error("Failed to save game state:", error);
+      }
+    } else {
+      // Clear saved state when returning to menu
+      localStorage.removeItem("zubo-game-state");
+    }
+  }, [gameState]);
 
   // Debug: Log game state changes
   useEffect(() => {
@@ -92,15 +122,18 @@ export const Game: React.FC = () => {
       livesParam,
       paymentSuccess,
       currentStatus: gameState.gameStatus,
+      hasQuestions: gameState.questions.length > 0,
     });
 
-    if (livesParam && paymentSuccess === "true") {
+    if (livesParam && paymentSuccess === "true" && !paymentProcessed) {
       const livesToAdd = parseInt(livesParam, 10);
       if (livesToAdd > 0) {
+        setPaymentProcessed(true);
         console.log("Processing payment success:", {
           livesToAdd,
           currentLives: gameState.lives,
           currentStatus: gameState.gameStatus,
+          questionsLength: gameState.questions.length,
         });
 
         setGameState((prev) => {
@@ -139,7 +172,7 @@ export const Game: React.FC = () => {
         window.history.replaceState({}, document.title, "/");
       }
     }
-  }, []); // Run once on mount
+  }, [gameState.gameStatus, gameState.questions.length]); // Run when game state is ready
 
   // Also check for URL parameters when window gains focus (user returns from Stripe)
   useEffect(() => {
@@ -438,7 +471,17 @@ export const Game: React.FC = () => {
   );
 
   const openStore = () => {
-    setGameState((prev) => ({ ...prev, gameStatus: "store" }));
+    setGameState((prev) => {
+      const newState = { ...prev, gameStatus: "store" };
+      // Ensure game state is saved before going to store
+      try {
+        localStorage.setItem("zubo-game-state", JSON.stringify(newState));
+        console.log("Saved game state before opening store");
+      } catch (error) {
+        console.error("Failed to save game state before store:", error);
+      }
+      return newState;
+    });
   };
 
   const closeStore = () => {
@@ -486,6 +529,9 @@ export const Game: React.FC = () => {
   };
 
   const resetGame = () => {
+    // Clear saved game state
+    localStorage.removeItem("zubo-game-state");
+
     setGameState({
       currentQuestionIndex: 0,
       score: 0,
