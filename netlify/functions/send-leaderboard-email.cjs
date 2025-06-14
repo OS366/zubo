@@ -1,10 +1,22 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
+  // Handle GET requests for status checks
+  if (event.httpMethod === 'GET') {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ 
+        status: 'Email function is running',
+        hasApiKey: !!process.env.RESEND_API_KEY,
+        timestamp: new Date().toISOString()
+      }),
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      body: JSON.stringify({ error: 'Method not allowed. Use POST to send email or GET for status.' }),
     };
   }
 
