@@ -108,7 +108,8 @@ export const Game: React.FC = () => {
           const hasActiveGame = prev.questions.length > 0;
           const shouldResume =
             (prev.gameStatus === "failure" || prev.gameStatus === "store") &&
-            hasActiveGame;
+            hasActiveGame &&
+            newLives > 0;
 
           console.log("State update decision:", {
             oldLives: prev.lives,
@@ -117,6 +118,7 @@ export const Game: React.FC = () => {
             hasQuestions: prev.questions.length > 0,
             currentQuestion: prev.currentQuestionIndex + 1,
             currentStatus: prev.gameStatus,
+            hasActiveGame,
           });
 
           return {
@@ -158,7 +160,8 @@ export const Game: React.FC = () => {
             const hasActiveGame = prev.questions.length > 0;
             const shouldResume =
               (prev.gameStatus === "failure" || prev.gameStatus === "store") &&
-              hasActiveGame;
+              hasActiveGame &&
+              newLives > 0;
 
             console.log("Focus event - State update:", {
               oldLives: prev.lives,
@@ -166,6 +169,7 @@ export const Game: React.FC = () => {
               shouldResume,
               currentQuestion: prev.currentQuestionIndex + 1,
               currentStatus: prev.gameStatus,
+              hasActiveGame,
             });
 
             return {
@@ -191,6 +195,36 @@ export const Game: React.FC = () => {
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
+
+  // Auto-respawn effect: Watch for lives being added while in failure state
+  useEffect(() => {
+    if (
+      gameState.gameStatus === "failure" &&
+      gameState.lives > 0 &&
+      gameState.questions.length > 0
+    ) {
+      console.log("Auto-respawn triggered:", {
+        lives: gameState.lives,
+        questionsLength: gameState.questions.length,
+        currentQuestionIndex: gameState.currentQuestionIndex,
+      });
+
+      // Small delay to ensure state is fully updated
+      setTimeout(() => {
+        setGameState((prev) => {
+          if (
+            prev.gameStatus === "failure" &&
+            prev.lives > 0 &&
+            prev.questions.length > 0
+          ) {
+            console.log("Auto-respawning to playing state");
+            return { ...prev, gameStatus: "playing" };
+          }
+          return prev;
+        });
+      }, 100);
+    }
+  }, [gameState.lives, gameState.gameStatus, gameState.questions.length]);
 
   const startGame = useCallback(() => {
     let questions = getRandomQuestions(100); // Now using 100 questions for 4 stages
@@ -418,21 +452,36 @@ export const Game: React.FC = () => {
         hasLives,
         lives: prev.lives,
         questions: prev.questions.length,
+        currentQuestionIndex: prev.currentQuestionIndex,
+        gameStatus: prev.gameStatus,
       });
 
       if (hasActiveGame && hasLives) {
+        console.log("Respawning to playing state");
         return { ...prev, gameStatus: "playing" };
       } else if (hasActiveGame && !hasLives) {
+        console.log("Returning to failure state");
         return { ...prev, gameStatus: "failure" };
       } else {
+        console.log("Returning to menu");
         return { ...prev, gameStatus: "menu" };
       }
     });
   };
 
   const respawnGame = () => {
+    console.log("Respawn attempt:", {
+      lives: gameState.lives,
+      questionsLength: gameState.questions.length,
+      currentQuestionIndex: gameState.currentQuestionIndex,
+      gameStatus: gameState.gameStatus,
+    });
+
     if (gameState.lives > 0 && gameState.questions.length > 0) {
+      console.log("Respawning player to playing state");
       setGameState((prev) => ({ ...prev, gameStatus: "playing" }));
+    } else {
+      console.log("Cannot respawn - insufficient lives or no questions");
     }
   };
 
@@ -849,6 +898,49 @@ export const Game: React.FC = () => {
                 >
                   Get More Lives
                 </button>
+                {/* Debug button for testing payment success */}
+                {process.env.NODE_ENV === "development" && (
+                  <button
+                    onClick={() => {
+                      console.log("Simulating payment success with 5 lives");
+                      setGameState((prev) => {
+                        const newLives = prev.lives + 5;
+                        const hasActiveGame = prev.questions.length > 0;
+                        const shouldResume =
+                          (prev.gameStatus === "failure" ||
+                            prev.gameStatus === "store") &&
+                          hasActiveGame &&
+                          newLives > 0;
+
+                        console.log("Debug payment success:", {
+                          oldLives: prev.lives,
+                          newLives,
+                          shouldResume,
+                          hasActiveGame,
+                          currentStatus: prev.gameStatus,
+                        });
+
+                        return {
+                          ...prev,
+                          lives: newLives,
+                          livesBought: prev.livesBought + 5,
+                          gameStatus: shouldResume
+                            ? "playing"
+                            : prev.gameStatus,
+                        };
+                      });
+                      setPurchasedLives(5);
+                      setShowSuccessMessage(true);
+                      setTimeout(() => {
+                        setShowSuccessMessage(false);
+                        setPurchasedLives(0);
+                      }, 5000);
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white text-sm font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    Debug: +5 Lives
+                  </button>
+                )}
               </>
             )}
           </div>
