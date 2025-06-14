@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
 import { LeaderboardForm } from "./LeaderboardForm";
-import { TimeBankComponent } from "./TimeBank";
+
 import { BalloonAnimation } from "./BalloonAnimation";
 import { GameState, Question, LeaderboardFormData } from "../types";
 import {
@@ -972,39 +972,132 @@ export const Game: React.FC = () => {
     >
       {/* Game Header */}
       <div className="max-w-4xl mx-auto mb-8">
-        <div className="flex justify-between items-center bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center">
-              <Heart className="w-6 h-6 text-red-400 mr-2" />
-              <span className="text-2xl font-bold text-white">
-                {gameState.lives}
-              </span>
+        <div className="bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
+          {/* Top Row - Lives, Score, Stage Info */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center">
+                <Heart className="w-6 h-6 text-red-400 mr-2" />
+                <span className="text-2xl font-bold text-white">
+                  {gameState.lives}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Trophy className="w-6 h-6 text-yellow-400 mr-2" />
+                <span className="text-2xl font-bold text-white">
+                  {gameState.score}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-2xl mr-2">⚡</span>
+                <div className="text-white">
+                  <div className="text-sm font-medium">
+                    Stage {gameState.currentStage.id}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {gameState.currentStage.name}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center">
-              <Trophy className="w-6 h-6 text-yellow-400 mr-2" />
-              <span className="text-2xl font-bold text-white">
-                {gameState.score}
+            <button
+              onClick={openStore}
+              className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+            >
+              Store
+            </button>
+          </div>
+
+          {/* Bottom Row - Time Bank, Progress, Trade Button */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center">
+                <span className="text-xl mr-2">⏰</span>
+                <div className="text-white">
+                  <div className="text-sm font-medium">
+                    {formatTime(gameState.timeBank.totalSeconds)}
+                  </div>
+                  <div className="text-xs text-gray-400">Time Bank</div>
+                </div>
+                {gameState.timeBank.earnedThisQuestion > 0 && (
+                  <div className="ml-2 text-xs text-green-400 animate-pulse">
+                    +{gameState.timeBank.earnedThisQuestion}s
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center">
+                <span className="text-xl mr-2">🏆</span>
+                <div className="text-white">
+                  <div className="text-sm font-medium">
+                    +{Math.floor(gameState.timeBank.totalSeconds / 4)}
+                  </div>
+                  <div className="text-xs text-gray-400">Bonus Pts</div>
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <span className="text-xl mr-2">📊</span>
+                <div className="text-white">
+                  <div className="text-sm font-medium">
+                    Q{gameState.currentQuestionIndex + 1}/100
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {gameState.currentStage.timeLimit}s limit
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trade Button */}
+            {Math.floor(gameState.timeBank.totalSeconds / 1000) > 0 && (
+              <button
+                onClick={() => {
+                  const livesToBuy = Math.floor(
+                    gameState.timeBank.totalSeconds / 1000
+                  );
+                  if (livesToBuy > 0) {
+                    handleTradeTime(livesToBuy);
+                  }
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+              >
+                <span>💰</span>
+                Trade {Math.floor(gameState.timeBank.totalSeconds / 1000)} Lives
+              </button>
+            )}
+          </div>
+
+          {/* Stage Progress Bar */}
+          <div className="mt-4">
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all duration-300 ${gameState.currentStage.balloonColor}`}
+                style={{
+                  width: `${getStageProgress(
+                    gameState.currentQuestionIndex + 1,
+                    gameState.currentStage
+                  )}%`,
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>
+                Questions {gameState.currentStage.questionRange[0]}-
+                {gameState.currentStage.questionRange[1]}
+              </span>
+              <span>
+                {Math.round(
+                  getStageProgress(
+                    gameState.currentQuestionIndex + 1,
+                    gameState.currentStage
+                  )
+                )}
+                % Complete
               </span>
             </div>
           </div>
-          <button
-            onClick={openStore}
-            className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-          >
-            Store
-          </button>
         </div>
-      </div>
-
-      {/* Time Bank Component */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <TimeBankComponent
-          timeBank={gameState.timeBank}
-          currentStage={gameState.currentStage}
-          questionNumber={gameState.currentQuestionIndex + 1}
-          onTradeTime={handleTradeTime}
-          gameStatus={gameState.gameStatus}
-        />
       </div>
 
       {/* Life Gained Animation */}
