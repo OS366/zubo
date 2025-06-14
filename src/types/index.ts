@@ -18,6 +18,22 @@ export interface QuestionTiming {
   answerIndex: number;
 }
 
+export interface GameStage {
+  id: number;
+  name: string;
+  questionRange: [number, number]; // [start, end] inclusive
+  timeLimit: number; // seconds per question
+  backgroundColor: string;
+  balloonColor: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+}
+
+export interface TimeBank {
+  totalSeconds: number;
+  earnedThisQuestion: number;
+  livesTraded: number; // number of lives purchased with time
+}
+
 export interface GameState {
   currentQuestionIndex: number;
   score: number;
@@ -33,6 +49,8 @@ export interface GameState {
   answerHistory: number[];
   livesBought: number;
   livesGained: number;
+  timeBank: TimeBank; // new time bank system
+  currentStage: GameStage; // current stage information
 }
 
 export interface LeaderboardEntry {
@@ -59,6 +77,8 @@ export interface LeaderboardEntry {
   leaderboardRank?: number;
   livesBought: number;
   livesGained: number;
+  timeBankSeconds: number; // total time bank accumulated
+  timeBankBonus: number; // leaderboard bonus from time bank
 }
 
 export interface LeaderboardFormData {

@@ -15,6 +15,7 @@ interface QuestionProps {
   ) => void;
   questionNumber: number;
   totalQuestions: number;
+  timeLimit?: number; // Dynamic time limit in seconds
 }
 
 export const Question: React.FC<QuestionProps> = ({
@@ -22,6 +23,7 @@ export const Question: React.FC<QuestionProps> = ({
   onAnswer,
   questionNumber,
   totalQuestions,
+  timeLimit = 60, // Default to 60 seconds if not provided
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(question.timed);
@@ -176,7 +178,11 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Timer */}
       {showTimer && (
-        <Timer duration={60} onTimeout={handleTimeout} isActive={showTimer} />
+        <Timer
+          duration={timeLimit}
+          onTimeout={handleTimeout}
+          isActive={showTimer}
+        />
       )}
 
       {/* Question Card */}

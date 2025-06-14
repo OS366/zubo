@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
 import { LeaderboardForm } from "./LeaderboardForm";
+import { TimeBankComponent } from "./TimeBank";
+import { BalloonAnimation } from "./BalloonAnimation";
 import { GameState, Question, LeaderboardFormData } from "../types";
 import {
   getRandomQuestions,
@@ -14,6 +16,16 @@ import {
   getUserEntries,
   getLeaderboardEntries,
 } from "../utils/leaderboard";
+import {
+  getCurrentStage,
+  initializeTimeBank,
+  addTimeToBank,
+  calculateTimeEarned,
+  formatTime,
+  getStageProgress,
+  tradeTimeForLives,
+  GAME_STAGES,
+} from "../utils/timeBank";
 import { Heart, Trophy, Star, Sparkles } from "lucide-react";
 import logo from "../assets/logo.png";
 
@@ -102,9 +114,12 @@ export const Game: React.FC = () => {
     isChallengeRound: false,
     leaderboardEligible: false,
     perQuestionTimes: [],
+    questionTimings: [],
     answerHistory: [],
     livesBought: 0,
     livesGained: 0,
+    timeBank: initializeTimeBank(),
+    currentStage: GAME_STAGES[0],
   });
 
   const [showLifeGained, setShowLifeGained] = useState(false);
@@ -124,6 +139,8 @@ export const Game: React.FC = () => {
   const [userRank, setUserRank] = useState<number | null>(null);
 
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [showStageTransition, setShowStageTransition] = useState(false);
+  const [transitionStage, setTransitionStage] = useState(GAME_STAGES[0]);
 
   // Debug: Log game state changes
   useEffect(() => {
@@ -240,7 +257,7 @@ export const Game: React.FC = () => {
   }, []);
 
   const startGame = useCallback(() => {
-    let questions = getRandomQuestions(50);
+    let questions = getRandomQuestions(100); // Now using 100 questions for 4 stages
     questions = injectRandomRiddles(questions, 10);
     setGameState({
       currentQuestionIndex: 0,
@@ -257,6 +274,8 @@ export const Game: React.FC = () => {
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
+      timeBank: initializeTimeBank(),
+      currentStage: GAME_STAGES[0],
     });
     setGameStartTime(new Date());
     setSessionStart(new Date());
@@ -282,6 +301,8 @@ export const Game: React.FC = () => {
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
+      timeBank: initializeTimeBank(),
+      currentStage: GAME_STAGES[0],
     });
     setGameStartTime(new Date());
     setSessionStart(new Date());
@@ -355,6 +376,25 @@ export const Game: React.FC = () => {
           newAnsweredQuestions >= THRESHOLD_QUESTIONS ||
           prev.leaderboardEligible;
 
+        // Calculate current stage and time bank updates
+        const questionNumber = prev.currentQuestionIndex + 1;
+        const nextQuestionNumber = questionNumber + 1;
+        const currentStage = getCurrentStage(questionNumber);
+        const nextStage = getCurrentStage(nextQuestionNumber);
+        const timeEarned = calculateTimeEarned(
+          currentStage.timeLimit,
+          timeInSeconds
+        );
+        const updatedTimeBank = addTimeToBank(prev.timeBank, timeEarned);
+
+        // Check if we're transitioning to a new stage
+        const isStageTransition =
+          currentStage.id !== nextStage.id && nextQuestionNumber <= 100;
+        if (isStageTransition) {
+          setTransitionStage(nextStage);
+          setShowStageTransition(true);
+        }
+
         // Check game end conditions
         if (newLives <= 0) {
           return {
@@ -367,9 +407,12 @@ export const Game: React.FC = () => {
             perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
             questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
+            timeBank: updatedTimeBank,
+            currentStage: nextStage,
           };
         }
-        if (newAnsweredQuestions >= 50) {
+        if (newAnsweredQuestions >= 100) {
+          // Updated to 100 questions
           return {
             ...prev,
             score: newScore,
@@ -380,6 +423,8 @@ export const Game: React.FC = () => {
             perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
             questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
+            timeBank: updatedTimeBank,
+            currentStage: nextStage,
           };
         }
 
@@ -398,6 +443,8 @@ export const Game: React.FC = () => {
             perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
             questionTimings: [...prev.questionTimings, questionTiming],
             answerHistory: [...prev.answerHistory, answerIndex],
+            timeBank: updatedTimeBank,
+            currentStage: nextStage,
           };
         }
 
@@ -411,6 +458,8 @@ export const Game: React.FC = () => {
           perQuestionTimes: [...prev.perQuestionTimes, timeInSeconds],
           questionTimings: [...prev.questionTimings, questionTiming],
           answerHistory: [...prev.answerHistory, answerIndex],
+          timeBank: updatedTimeBank,
+          currentStage: nextStage,
         };
       });
     },
@@ -459,8 +508,28 @@ export const Game: React.FC = () => {
       answerHistory: [],
       livesBought: 0,
       livesGained: 0,
+      timeBank: initializeTimeBank(),
+      currentStage: GAME_STAGES[0],
     });
   };
+
+  const handleTradeTime = useCallback((livesToBuy: number) => {
+    setGameState((prev) => {
+      const updatedTimeBank = tradeTimeForLives(prev.timeBank, livesToBuy);
+      if (updatedTimeBank) {
+        return {
+          ...prev,
+          lives: prev.lives + livesToBuy,
+          timeBank: updatedTimeBank,
+        };
+      }
+      return prev; // Trade failed, not enough time
+    });
+  }, []);
+
+  const handleStageTransitionComplete = useCallback(() => {
+    setShowStageTransition(false);
+  }, []);
 
   const handleLeaderboardSubmit = async (formData: LeaderboardFormData) => {
     try {
@@ -546,8 +615,9 @@ export const Game: React.FC = () => {
               className="mx-auto mb-4 w-40 h-40 object-contain drop-shadow-xl"
             />
             <p className="text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Welcome to the Zubo Challenge! Test your mind and discover your
-              persona in the ultimate challenge round.
+              Welcome to the Zubo Challenge! Master 4 stages, build your time
+              bank, and discover your persona in the ultimate 100-question
+              challenge.
             </p>
           </div>
 
@@ -565,7 +635,7 @@ export const Game: React.FC = () => {
                 </div>
                 <div className="flex items-center text-gray-300">
                   <Star className="w-5 h-5 text-blue-400 mr-3" />
-                  <span>Some questions are timed (60s)</span>
+                  <span>4 stages with increasing difficulty</span>
                 </div>
               </div>
               <div className="space-y-3">
@@ -576,8 +646,8 @@ export const Game: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center text-gray-300">
-                  <span className="text-green-400 mr-3">✓</span>
-                  <span>4 question categories</span>
+                  <span className="text-green-400 mr-3">⏱️</span>
+                  <span>Build time bank & trade for lives</span>
                 </div>
                 <div className="flex items-center text-gray-300">
                   <span className="text-pink-400 mr-3">♦</span>
@@ -629,7 +699,7 @@ export const Game: React.FC = () => {
               {gameState.isChallengeRound
                 ? "the challenge round"
                 : "the main game"}{" "}
-              with a score of {gameState.score}/50!
+              with a score of {gameState.score}/100!
             </p>
           </div>
 
@@ -743,7 +813,7 @@ export const Game: React.FC = () => {
             <p className="text-xl text-gray-300 mb-8">
               {gameState.lives <= 0
                 ? "You've run out of lives! Don't give up - try again or visit the store for more lives."
-                : `You scored ${gameState.score}/50. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`}
+                : `You scored ${gameState.score}/100. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`}
             </p>
           </div>
 
@@ -897,7 +967,7 @@ export const Game: React.FC = () => {
       className={
         visualSurprise
           ? "min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4 transition-all duration-700"
-          : "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-4"
+          : `min-h-screen bg-gradient-to-br ${gameState.currentStage.backgroundColor} p-4 transition-all duration-1000`
       }
     >
       {/* Game Header */}
@@ -924,6 +994,17 @@ export const Game: React.FC = () => {
             Store
           </button>
         </div>
+      </div>
+
+      {/* Time Bank Component */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <TimeBankComponent
+          timeBank={gameState.timeBank}
+          currentStage={gameState.currentStage}
+          questionNumber={gameState.currentQuestionIndex + 1}
+          onTradeTime={handleTradeTime}
+          gameStatus={gameState.gameStatus}
+        />
       </div>
 
       {/* Life Gained Animation */}
@@ -965,9 +1046,17 @@ export const Game: React.FC = () => {
         onAnswer={handleAnswer}
         questionNumber={gameState.currentQuestionIndex + 1}
         totalQuestions={gameState.questions.length}
+        timeLimit={gameState.currentStage.timeLimit}
       />
 
       <DebugPanel gameState={gameState} />
+
+      {/* Stage Transition Animation */}
+      <BalloonAnimation
+        stage={transitionStage}
+        show={showStageTransition}
+        onComplete={handleStageTransitionComplete}
+      />
     </div>
   );
 };
