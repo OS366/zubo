@@ -89,32 +89,47 @@ function App() {
               fontSize: "12px",
             }}
             onClick={() => {
-              fetch("/.netlify/functions/send-leaderboard-email", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  to: "test@example.com",
-                  firstName: "Test User",
-                  avatarUrl:
-                    "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
-                  lives: 3,
-                  easterEggs: 2,
-                }),
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  console.log("Email test response:", data);
-                  alert(
-                    "Email test response: " + JSON.stringify(data, null, 2)
-                  );
+              const email = prompt("Enter your email address for testing:");
+              if (
+                email &&
+                email.includes("@") &&
+                !email.includes("example.com")
+              ) {
+                fetch("/.netlify/functions/send-leaderboard-email", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    to: email,
+                    firstName: "Test User",
+                    avatarUrl:
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
+                    lives: 3,
+                    easterEggs: 2,
+                    score: 85,
+                    questionsAnswered: 42,
+                    persona: "Strategic Thinker",
+                  }),
                 })
-                .catch((err) => {
-                  console.error("Email test error:", err);
-                  alert("Email test error: " + err.message);
-                });
+                  .then((res) => res.json())
+                  .then((data) => {
+                    console.log("Email test response:", data);
+                    alert(
+                      "Email test sent to " +
+                        email +
+                        ": " +
+                        JSON.stringify(data, null, 2)
+                    );
+                  })
+                  .catch((err) => {
+                    console.error("Email test error:", err);
+                    alert("Email test error: " + err.message);
+                  });
+              } else {
+                alert("Please enter a valid email address (not example.com)");
+              }
             }}
           >
-            Test Email Function
+            Test Email (Enter Your Email)
           </button>
 
           <button
