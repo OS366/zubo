@@ -26,15 +26,15 @@ export const Question: React.FC<QuestionProps> = ({
   timeLimit = 60, // Default to 60 seconds if not provided
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showTimer, setShowTimer] = useState(question.timed);
+  const [showTimer, setShowTimer] = useState(false); // Always false - no timer
   const startTimeRef = useRef<Date>(new Date());
 
   // Reset state when question changes and record start time
   useEffect(() => {
     setSelectedAnswer(null);
-    setShowTimer(question.timed);
+    setShowTimer(false); // Always false - no timer
     startTimeRef.current = new Date();
-  }, [question.id, question.timed]);
+  }, [question.id]);
 
   const handleAnswer = (index: number, wasTimeout: boolean = false) => {
     const endTime = new Date();
