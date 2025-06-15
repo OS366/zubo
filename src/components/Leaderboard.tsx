@@ -5,7 +5,7 @@ import {
   getLeaderboardEntries,
 } from "../utils/leaderboard";
 import { LeaderboardEntry } from "../types";
-import { Trophy, Star, Clock, Target, Users, TrendingUp } from "lucide-react";
+import { Trophy, Clock, Target, Users, TrendingUp } from "lucide-react";
 
 // Avatar component with robust error handling
 const Avatar: React.FC<{

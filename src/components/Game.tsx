@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Question as QuestionComponent } from "./Question";
 import { Store } from "./Store";
 import { LeaderboardForm } from "./LeaderboardForm";
 
 import { BalloonAnimation } from "./BalloonAnimation";
-import { GameState, Question, LeaderboardFormData } from "../types";
-import {
-  getRandomQuestions,
-  getChallengeQuestions,
-  injectRandomRiddles,
-} from "../data/questions";
+import { GameState, LeaderboardFormData } from "../types";
+import { getChallengeQuestions, injectRandomRiddles } from "../data/questions";
 import { calculatePersona, getPersonaInfo } from "../utils/persona";
 import {
   saveLeaderboardEntry,
@@ -21,7 +17,6 @@ import {
   initializeTimeBank,
   addTimeToBank,
   calculateTimeEarned,
-  formatTime,
   getStageProgress,
   tradeTimeForLives,
   GAME_STAGES,
@@ -72,12 +67,8 @@ export const Game: React.FC = () => {
   const [gameStartTime, setGameStartTime] = useState<Date | null>(null);
   const [leaderboardSaved, setLeaderboardSaved] = useState(false);
   const [savingToLeaderboard, setSavingToLeaderboard] = useState(false);
-  const [visualSurprise, setVisualSurprise] = useState(false);
-
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [visualSurprise] = useState(false);
   const [sessionStart, setSessionStart] = useState<Date | null>(null);
-  const [sessionEnd, setSessionEnd] = useState<Date | null>(null);
 
   const [userAttempts, setUserAttempts] = useState<number | null>(null);
   const [userRank, setUserRank] = useState<number | null>(null);
@@ -258,32 +249,6 @@ export const Game: React.FC = () => {
       }, 100);
     }
   }, [gameState.lives, gameState.gameStatus, gameState.questions.length]);
-
-  const startGame = useCallback(() => {
-    let questions = getRandomQuestions(100); // Now using 100 questions for 4 stages
-    questions = injectRandomRiddles(questions, 10);
-    setGameState((prev) => ({
-      currentQuestionIndex: 0,
-      score: 0,
-      lives: 3 + prev.livesBought, // Preserve purchased lives
-      questions,
-      answeredQuestions: 0,
-      personaScores: {},
-      gameStatus: "playing",
-      isChallengeRound: false,
-      leaderboardEligible: false,
-      perQuestionTimes: [],
-      questionTimings: [],
-      answerHistory: [],
-      livesBought: prev.livesBought, // Keep track of purchased lives
-      livesGained: 0,
-      timeBank: initializeTimeBank(),
-      currentStage: GAME_STAGES[0],
-    }));
-    setGameStartTime(new Date());
-    setSessionStart(new Date());
-    setLeaderboardSaved(false);
-  }, []);
 
   const startChallengeRound = useCallback(() => {
     let questions = getChallengeQuestions();

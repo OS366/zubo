@@ -20,10 +20,7 @@ function decryptField(value: string): string {
   }
 }
 
-// Generate a unique ID for each entry
-const generateId = (): string => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
+
 
 // Helper to generate a DiceBear avatar URL with fallback
 function getAvatarUrl(email: string) {
@@ -136,7 +133,33 @@ export const saveLeaderboardEntry = async (
 };
 
 // Update mapping code to include avatarUrl
-function mapLeaderboardEntry(entry: any): LeaderboardEntry {
+interface DatabaseEntry {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  score: number;
+  lives_remaining: number;
+  questions_answered: number;
+  game_status: 'success' | 'failure';
+  persona?: string;
+  completed_at: string;
+  time_taken?: number;
+  is_challenge_round: boolean;
+  reached_leaderboard_threshold: boolean;
+  avatar_url?: string;
+  age_range?: string;
+  answer_history?: number[];
+  session_duration?: number;
+  attempts?: number;
+  feedback?: string;
+  rating?: number;
+  leaderboard_rank?: number;
+  lives_bought?: number;
+  lives_gained?: number;
+}
+
+function mapLeaderboardEntry(entry: DatabaseEntry): LeaderboardEntry {
   const decryptedEmail = decryptField(entry.email);
   const avatarUrl = entry.avatar_url || getAvatarUrl(decryptedEmail);
   

@@ -12,7 +12,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Helper function to handle Supabase errors
-export const handleSupabaseError = (error: any) => {
+export const handleSupabaseError = (error: unknown) => {
   console.error('Supabase error:', error);
-  throw new Error(error.message || 'An error occurred with the database');
+  const message = error instanceof Error ? error.message : 'An error occurred with the database';
+  throw new Error(message);
 }; 

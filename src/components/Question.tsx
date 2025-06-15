@@ -89,17 +89,40 @@ export const Question: React.FC<QuestionProps> = ({
     }, 1000);
   };
 
-  const handleAnswer = (index: number, wasTimeout: boolean = false) => {
-    // Clear all timeouts when user answers
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (countdownRef.current) {
-      clearTimeout(countdownRef.current);
-    }
+  const handleAnswer = React.useCallback(
+    (index: number, wasTimeout: boolean = false) => {
+      // Clear all timeouts when user answers
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (countdownRef.current) {
+        clearTimeout(countdownRef.current);
+      }
 
-    // Hide countdown if showing
-    setShowCountdown(false);
+      // Hide countdown if showing
+      setShowCountdown(false);
+
+      const endTime = new Date();
+      const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
+
+      const timingData = {
+        startTime: startTimeRef.current,
+        endTime,
+        timeTaken,
+        wasTimeout,
+      };
+
+      setSelectedAnswer(index);
+      setShowTimer(false);
+      setTimeout(() => {
+        onAnswer(index, timingData);
+      }, 500);
+    },
+    [onAnswer]
+  );
+
+  const handleTimeout = React.useCallback(() => {
+    setShowTimer(false);
 
     const endTime = new Date();
     const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
@@ -108,20 +131,11 @@ export const Question: React.FC<QuestionProps> = ({
       startTime: startTimeRef.current,
       endTime,
       timeTaken,
-      wasTimeout,
+      wasTimeout: true,
     };
 
-    setSelectedAnswer(index);
-    setShowTimer(false);
-    setTimeout(() => {
-      onAnswer(index, timingData);
-    }, 500);
-  };
-
-  const handleTimeout = () => {
-    setShowTimer(false);
-    handleAnswer(-1, true); // -1 indicates timeout
-  };
+    onAnswer(-1, timingData);
+  }, [onAnswer]);
 
   const getQuestionTypeColor = (type: string) => {
     switch (type) {

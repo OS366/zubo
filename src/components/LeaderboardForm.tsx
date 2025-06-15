@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { LeaderboardFormData } from '../types';
-import { isValidEmail } from '../utils/leaderboard';
-import { User, Mail, Trophy } from 'lucide-react';
+import React, { useState } from "react";
+import { LeaderboardFormData } from "../types";
+import { isValidEmail } from "../utils/leaderboard";
+import { Trophy } from "lucide-react";
 
 interface LeaderboardFormProps {
   onSubmit: (data: LeaderboardFormData) => Promise<void>;
   isLoading: boolean;
-  gameResult: 'success' | 'failure';
+  gameResult: "success" | "failure";
   score: number;
   isChallengeRound: boolean;
   reachedThreshold: boolean;
@@ -18,56 +18,58 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
   gameResult,
   score,
   isChallengeRound,
-  reachedThreshold
+  reachedThreshold,
 }) => {
   const [formData, setFormData] = useState<LeaderboardFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    ageRange: '',
-    feedback: '',
-    rating: 0
+    firstName: "",
+    lastName: "",
+    email: "",
+    ageRange: "",
+    feedback: "",
+    rating: 0,
   });
   const [errors, setErrors] = useState<Partial<LeaderboardFormData>>({});
   const [showForm, setShowForm] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const ageRanges = [
-    '0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60+'
-  ];
+  const ageRanges = ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60+"];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    if (name === 'rating') return; // Only set rating via star button
-    setFormData(prev => ({
+    if (name === "rating") return; // Only set rating via star button
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (errors[name as keyof LeaderboardFormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LeaderboardFormData> = {};
-    
+
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = "First name is required";
     }
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = "Last name is required";
     }
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!isValidEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
     if (!formData.ageRange) {
-      newErrors.ageRange = 'Please select your age range';
+      newErrors.ageRange = "Please select your age range";
     }
     if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
-      newErrors.rating = 'Please provide a rating (1-5)';
+      newErrors.rating = "Please provide a rating (1-5)";
     }
 
     setErrors(newErrors);
@@ -85,7 +87,9 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
     try {
       await onSubmit(formData);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to save score');
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to save score"
+      );
     }
   };
 
@@ -98,10 +102,9 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
             Join the Leaderboard!
           </h3>
           <p className="text-gray-300 mb-6">
-            {gameResult === 'success' 
+            {gameResult === "success"
               ? `Great job! You scored ${score}/100. Add your name to the leaderboard and see how you rank against other players.`
-              : `You scored ${score}/100. Even though you didn't reach the target, your effort counts! Join the leaderboard to track your progress.`
-            }
+              : `You scored ${score}/100. Even though you didn't reach the target, your effort counts! Join the leaderboard to track your progress.`}
           </p>
           <button
             onClick={() => setShowForm(true)}
@@ -110,7 +113,8 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
             Add to Leaderboard
           </button>
           <p className="text-gray-400 text-sm mt-4">
-            Optional - Your data is stored securely and used only for the leaderboard
+            Optional - Your data is stored securely and used only for the
+            leaderboard
           </p>
         </div>
       </div>
@@ -120,21 +124,24 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
   return (
     <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl">
       <h2 className="text-2xl font-bold text-white mb-6">
-        {isChallengeRound ? 'Save Challenge Score' : 'Save Your Score'}
+        {isChallengeRound ? "Save Challenge Score" : "Save Your Score"}
       </h2>
-      
+
       {!reachedThreshold ? (
         <div className="bg-yellow-900/50 border border-yellow-700 rounded-xl p-4 mb-6">
           <p className="text-yellow-200">
-            You need to answer at least 25 questions to be eligible for the leaderboard.
-            Keep playing to reach this threshold!
+            You need to answer at least 25 questions to be eligible for the
+            leaderboard. Keep playing to reach this threshold!
           </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 First Name
               </label>
               <input
@@ -144,7 +151,7 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
                 value={formData.firstName}
                 onChange={handleChange}
                 className={`w-full px-4 py-2 rounded-lg bg-gray-700 border ${
-                  errors.firstName ? 'border-red-500' : 'border-gray-600'
+                  errors.firstName ? "border-red-500" : "border-gray-600"
                 } text-white focus:outline-none focus:ring-2 focus:ring-purple-500`}
                 placeholder="Enter your first name"
               />
@@ -154,7 +161,10 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Last Name
               </label>
               <input
@@ -164,7 +174,7 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
                 value={formData.lastName}
                 onChange={handleChange}
                 className={`w-full px-4 py-2 rounded-lg bg-gray-700 border ${
-                  errors.lastName ? 'border-red-500' : 'border-gray-600'
+                  errors.lastName ? "border-red-500" : "border-gray-600"
                 } text-white focus:outline-none focus:ring-2 focus:ring-purple-500`}
                 placeholder="Enter your last name"
               />
@@ -175,7 +185,10 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Email Address
             </label>
             <input
@@ -185,7 +198,7 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
               value={formData.email}
               onChange={handleChange}
               className={`w-full px-4 py-2 rounded-lg bg-gray-700 border ${
-                errors.email ? 'border-red-500' : 'border-gray-600'
+                errors.email ? "border-red-500" : "border-gray-600"
               } text-white focus:outline-none focus:ring-2 focus:ring-purple-500`}
               placeholder="Enter your email address"
             />
@@ -195,7 +208,10 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
           </div>
 
           <div>
-            <label htmlFor="ageRange" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="ageRange"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Age Range
             </label>
             <select
@@ -204,12 +220,14 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
               value={formData.ageRange}
               onChange={handleChange}
               className={`w-full px-4 py-2 rounded-lg bg-gray-700 border ${
-                errors.ageRange ? 'border-red-500' : 'border-gray-600'
+                errors.ageRange ? "border-red-500" : "border-gray-600"
               } text-white focus:outline-none focus:ring-2 focus:ring-purple-500`}
             >
               <option value="">Select your age range</option>
               {ageRanges.map((range) => (
-                <option key={range} value={range}>{range}</option>
+                <option key={range} value={range}>
+                  {range}
+                </option>
               ))}
             </select>
             {errors.ageRange && (
@@ -218,20 +236,26 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
           </div>
 
           <div>
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="rating"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Rating
             </label>
             <div className="flex items-center gap-2 mb-2">
-              {[1,2,3,4,5].map((star) => (
+              {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   type="button"
                   key={star}
-                  onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                  className={
-                    (formData.rating && formData.rating >= star)
-                      ? 'text-yellow-400 text-2xl' : 'text-gray-500 text-2xl'
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, rating: star }))
                   }
-                  aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                  className={
+                    formData.rating && formData.rating >= star
+                      ? "text-yellow-400 text-2xl"
+                      : "text-gray-500 text-2xl"
+                  }
+                  aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
                 >
                   ★
                 </button>
@@ -243,7 +267,10 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
           </div>
 
           <div>
-            <label htmlFor="feedback" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="feedback"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Feedback (optional)
             </label>
             <textarea
@@ -269,20 +296,36 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
               disabled={isLoading}
               className={`px-6 py-3 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 ${
                 isLoading
-                  ? 'bg-gray-600 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               }`}
             >
               {isLoading ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Saving...
                 </span>
               ) : (
-                'Save Score'
+                "Save Score"
               )}
             </button>
 
@@ -291,7 +334,7 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
                 Score: {score}/50
               </div>
               <div className="text-sm text-gray-400">
-                {isChallengeRound ? 'Challenge Round' : 'Main Game'}
+                {isChallengeRound ? "Challenge Round" : "Main Game"}
               </div>
             </div>
           </div>
@@ -299,4 +342,4 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
       )}
     </div>
   );
-}; 
+};

@@ -4,7 +4,6 @@ import { TimeBank as TimeBankType, GameStage } from "../types";
 import {
   formatTime,
   getMaxLivesAvailable,
-  tradeTimeForLives,
   calculateLeaderboardBonus,
   getStageProgress,
 } from "../utils/timeBank";

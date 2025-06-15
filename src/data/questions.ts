@@ -942,7 +942,7 @@ export const riddlePool: Question[] = [
 ];
 
 // Function to get random questions for the main game (50 questions)
-export function getRandomQuestions(count: number = 50): Question[] {
+export function getRandomQuestions(): Question[] {
   // Enhanced randomization using Fisher-Yates shuffle algorithm
   const questions = [...questionPool];
   
