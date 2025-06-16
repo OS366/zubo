@@ -103,7 +103,7 @@ describe("Question Component", () => {
 
   describe("User Interaction", () => {
     it("handles answer selection correctly", async () => {
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       render(
         <Question
@@ -117,6 +117,9 @@ describe("Question Component", () => {
 
       const correctAnswer = screen.getByText("4");
       await user.click(correctAnswer);
+
+      // Advance timers to handle any delayed calls
+      vi.advanceTimersByTime(1000);
 
       // Should call onAnswer with the correct index
       expect(mockOnAnswer).toHaveBeenCalledWith(
@@ -154,7 +157,7 @@ describe("Question Component", () => {
     });
 
     it("prevents multiple answer selections", async () => {
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       render(
         <Question
@@ -170,6 +173,7 @@ describe("Question Component", () => {
       const secondAnswer = screen.getByText("3");
 
       await user.click(firstAnswer);
+      vi.advanceTimersByTime(600); // Advance past the 500ms delay
       await user.click(secondAnswer);
 
       // Should only be called once
@@ -213,7 +217,7 @@ describe("Question Component", () => {
     });
 
     it("does not timeout if user answers in time", async () => {
-      const user = userEvent.setup();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       render(
         <Question
@@ -228,6 +232,7 @@ describe("Question Component", () => {
       // Answer before timeout
       const answer = screen.getByText("4");
       await user.click(answer);
+      vi.advanceTimersByTime(1000); // Advance timers to handle delayed calls
 
       // Should only be called once (for the answer, not timeout)
       expect(mockOnAnswer).toHaveBeenCalledTimes(1);
