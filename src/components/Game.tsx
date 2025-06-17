@@ -600,31 +600,45 @@ export const Game: React.FC = () => {
       // Send congratulatory email
       if (leaderboardEntry) {
         try {
+          console.log("Attempting to send email to:", formData.email);
+          const emailPayload = {
+            to: formData.email,
+            firstName: formData.firstName,
+            avatarUrl: leaderboardEntry.avatarUrl,
+            lives: leaderboardEntry.livesRemaining,
+            easterEggs: 0, // TODO: Track easter eggs properly
+            score: gameState.score,
+            questionsAnswered: gameState.answeredQuestions,
+            persona: calculatePersona(gameState.personaScores),
+          };
+          console.log("Email payload:", emailPayload);
+
           const res = await fetch(
             "/.netlify/functions/send-leaderboard-email",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                to: formData.email,
-                firstName: formData.firstName,
-                avatarUrl: leaderboardEntry.avatarUrl,
-                lives: leaderboardEntry.livesRemaining,
-                easterEggs: 0, // TODO: Track easter eggs properly
-                score: gameState.score,
-                questionsAnswered: gameState.answeredQuestions,
-                persona: calculatePersona(gameState.personaScores),
-              }),
+              body: JSON.stringify(emailPayload),
             }
           );
+
+          console.log("Email API response status:", res.status);
+
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            setEmailError(data.error || "Failed to send email");
-            console.error("Email send failed:", data.error || res.statusText);
+            console.error("Email send failed - Full response:", data);
+            setEmailError(data.error || `Failed to send email (${res.status})`);
+          } else {
+            const data = await res.json().catch(() => ({}));
+            console.log("Email sent successfully:", data);
+            // Clear any previous email errors
+            setEmailError(null);
           }
         } catch (err) {
-          setEmailError((err as Error).message || "Failed to send email");
           console.error("Email send error:", err);
+          setEmailError(
+            (err as Error).message || "Failed to send email - Network error"
+          );
         }
       }
 
@@ -847,6 +861,14 @@ export const Game: React.FC = () => {
                 Your achievement has been recorded. Check the leaderboard to see
                 your ranking!
               </p>
+              {!emailError && (
+                <div className="mt-4 p-3 bg-blue-900/50 border border-blue-700 rounded-lg">
+                  <div className="text-blue-400 text-sm font-medium">
+                    📧 Congratulatory email sent to{" "}
+                    {userAttempts ? "your address" : "you"}!
+                  </div>
+                </div>
+              )}
               {userAttempts !== null && userRank !== null && (
                 <div className="mt-4 text-lg text-white">
                   <div>
@@ -896,6 +918,43 @@ export const Game: React.FC = () => {
           {emailError && (
             <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl">
               <span className="font-bold">Email Error:</span> {emailError}
+              {import.meta.env.DEV && (
+                <button
+                  onClick={() => setEmailError(null)}
+                  className="ml-3 text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+                >
+                  Dismiss
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Dev tools for testing email */}
+          {import.meta.env.DEV && (
+            <div className="fixed bottom-4 right-4 z-50">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(
+                      "/.netlify/functions/send-leaderboard-email",
+                      {
+                        method: "GET",
+                      }
+                    );
+                    const data = await res.json();
+                    console.log("Email function status:", data);
+                    alert(
+                      `Email function status: ${JSON.stringify(data, null, 2)}`
+                    );
+                  } catch (err) {
+                    console.error("Email function test failed:", err);
+                    alert(`Email function test failed: ${err.message}`);
+                  }
+                }}
+                className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-bold rounded-lg"
+              >
+                Test Email Function
+              </button>
             </div>
           )}
         </div>
@@ -1075,6 +1134,14 @@ export const Game: React.FC = () => {
           {emailError && (
             <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl">
               <span className="font-bold">Email Error:</span> {emailError}
+              {import.meta.env.DEV && (
+                <button
+                  onClick={() => setEmailError(null)}
+                  className="ml-3 text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+                >
+                  Dismiss
+                </button>
+              )}
             </div>
           )}
         </div>
