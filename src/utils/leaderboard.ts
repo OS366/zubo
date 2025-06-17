@@ -90,6 +90,7 @@ export const saveLeaderboardEntry = async (
       completed_at: new Date().toISOString(),
       time_taken: startTime ? Math.floor((Date.now() - startTime.getTime()) / 1000) : null,
       is_challenge_round: gameState.isChallengeRound ?? false,
+      endurance: gameState.isEnduranceMode ?? false,
       reached_leaderboard_threshold: gameState.leaderboardEligible ?? false,
       avatar_url: avatarUrl,
       age_range: formData.ageRange,
@@ -146,6 +147,7 @@ interface DatabaseEntry {
   completed_at: string;
   time_taken?: number;
   is_challenge_round: boolean;
+  endurance?: boolean;
   reached_leaderboard_threshold: boolean;
   avatar_url?: string;
   age_range?: string;
@@ -187,6 +189,7 @@ function mapLeaderboardEntry(entry: DatabaseEntry): LeaderboardEntry {
     completedAt: entry.completed_at ? new Date(entry.completed_at) : new Date(0),
     timeTaken: entry.time_taken || undefined,
     isChallengeRound: entry.is_challenge_round ?? false,
+    endurance: entry.endurance ?? false,
     reachedLeaderboardThreshold: entry.reached_leaderboard_threshold ?? false,
     avatarUrl,
     ageRange: entry.age_range || '',
@@ -198,6 +201,8 @@ function mapLeaderboardEntry(entry: DatabaseEntry): LeaderboardEntry {
     leaderboardRank: entry.leaderboard_rank || undefined,
     livesBought: entry.lives_bought || 0,
     livesGained: entry.lives_gained || 0,
+    timeBankSeconds: 0, // Add default values for missing fields in LeaderboardEntry
+    timeBankBonus: 0,
   };
 }
 

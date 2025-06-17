@@ -50,6 +50,7 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "menu",
       isChallengeRound: false,
+      isEnduranceMode: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
       questionTimings: [],
@@ -263,11 +264,40 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "playing",
       isChallengeRound: true,
+      isEnduranceMode: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
       questionTimings: [],
       answerHistory: [],
       livesBought: prev.livesBought, // Keep track of purchased lives
+      livesGained: 0,
+      timeBank: initializeTimeBank(),
+      currentStage: GAME_STAGES[0],
+    }));
+    setGameStartTime(new Date());
+    setSessionStart(new Date());
+    setLeaderboardSaved(false);
+  }, []);
+
+  const startEnduranceMode = useCallback(() => {
+    let questions = getChallengeQuestions();
+    questions = injectRandomRiddles(questions, 10);
+    console.log("Starting endurance mode, questions:", questions);
+    setGameState((prev) => ({
+      currentQuestionIndex: 0,
+      score: 0,
+      lives: 3, // Only 3 lives, no purchased lives in endurance mode
+      questions,
+      answeredQuestions: 0,
+      personaScores: {},
+      gameStatus: "playing",
+      isChallengeRound: true,
+      isEnduranceMode: true,
+      leaderboardEligible: false,
+      perQuestionTimes: [],
+      questionTimings: [],
+      answerHistory: [],
+      livesBought: 0, // No purchased lives in endurance mode
       livesGained: 0,
       timeBank: initializeTimeBank(),
       currentStage: GAME_STAGES[0],
@@ -397,8 +427,8 @@ export const Game: React.FC = () => {
           };
         }
 
-        if (isCorrect && Math.random() < 0.2) {
-          // Trigger life gained animation
+        if (isCorrect && Math.random() < 0.2 && !prev.isEnduranceMode) {
+          // Trigger life gained animation (not in endurance mode)
           setShowLifeGained(true);
           setTimeout(() => setShowLifeGained(false), 3000);
 
@@ -506,6 +536,7 @@ export const Game: React.FC = () => {
       personaScores: {},
       gameStatus: "menu",
       isChallengeRound: false,
+      isEnduranceMode: false,
       leaderboardEligible: false,
       perQuestionTimes: [],
       questionTimings: [],
@@ -625,48 +656,97 @@ export const Game: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-gray-800 rounded-3xl p-8 mb-8 border border-gray-700 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-6">Game Rules</h2>
-            <div className="grid md:grid-cols-2 gap-6 text-left">
-              <div className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            {/* Normal Mode */}
+            <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">
+                Normal Mode
+              </h2>
+              <div className="space-y-3 text-left mb-6">
                 <div className="flex items-center text-gray-300">
                   <Heart className="w-5 h-5 text-red-400 mr-3" />
                   <span>Start with 3 lives</span>
                 </div>
                 <div className="flex items-center text-gray-300">
-                  <Trophy className="w-5 h-5 text-yellow-400 mr-3" />
-                  <span>Score 75+ out of 100 to succeed</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <Star className="w-5 h-5 text-blue-400 mr-3" />
-                  <span>4 stages with increasing difficulty</span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center text-gray-300">
                   <Sparkles className="w-5 h-5 text-purple-400 mr-3" />
-                  <span>
-                    20% chance to gain a life on correct answers (no max limit)
-                  </span>
+                  <span>20% chance to gain extra lives</span>
                 </div>
                 <div className="flex items-center text-gray-300">
                   <span className="text-green-400 mr-3">⏱️</span>
                   <span>Build time bank & trade for lives</span>
                 </div>
                 <div className="flex items-center text-gray-300">
+                  <Star className="w-5 h-5 text-blue-400 mr-3" />
+                  <span>4 stages with dynamic timing</span>
+                </div>
+              </div>
+              <button
+                className="w-full px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                onClick={startChallengeRound}
+              >
+                Play Normal Mode
+              </button>
+            </div>
+
+            {/* Endurance Mode */}
+            <div className="bg-gray-800 rounded-3xl p-6 border border-red-700 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">
+                <span className="text-red-400">🔥 Endurance Mode</span>
+              </h2>
+              <div className="space-y-3 text-left mb-6">
+                <div className="flex items-center text-gray-300">
+                  <Heart className="w-5 h-5 text-red-400 mr-3" />
+                  <span>Only 3 lives - no extras!</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-red-400 mr-3">⏰</span>
+                  <span>20 seconds per question</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-red-400 mr-3">🚫</span>
+                  <span>No life gains or time banking</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <Trophy className="w-5 h-5 text-yellow-400 mr-3" />
+                  <span>Pure skill challenge</span>
+                </div>
+              </div>
+              <button
+                className="w-full px-8 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                onClick={startEnduranceMode}
+              >
+                Play Endurance Mode
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">
+              Common Rules
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6 text-left">
+              <div className="space-y-3">
+                <div className="flex items-center text-gray-300">
+                  <Trophy className="w-5 h-5 text-yellow-400 mr-3" />
+                  <span>Score 75+ out of 100 to succeed</span>
+                </div>
+                <div className="flex items-center text-gray-300">
                   <span className="text-pink-400 mr-3">♦</span>
                   <span>Discover your inner persona</span>
                 </div>
               </div>
+              <div className="space-y-3">
+                <div className="flex items-center text-gray-300">
+                  <Star className="w-5 h-5 text-blue-400 mr-3" />
+                  <span>100 challenging questions</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-green-400 mr-3">🏆</span>
+                  <span>Compete on the leaderboard</span>
+                </div>
+              </div>
             </div>
           </div>
-
-          <button
-            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl"
-            onClick={startChallengeRound}
-          >
-            Play the Challenge
-          </button>
         </div>
       </div>
     );
@@ -694,15 +774,24 @@ export const Game: React.FC = () => {
             <div className="text-6xl mb-4">🎉</div>
             <h1 className="text-5xl font-bold text-white mb-4">
               {gameState.isChallengeRound
-                ? "Challenge Complete!"
+                ? gameState.isEnduranceMode
+                  ? "🔥 Endurance Mode Complete!"
+                  : "Challenge Complete!"
                 : "Congratulations!"}
             </h1>
             <p className="text-xl text-gray-300 mb-8">
               You've completed{" "}
               {gameState.isChallengeRound
-                ? "the challenge round"
+                ? gameState.isEnduranceMode
+                  ? "the endurance challenge"
+                  : "the challenge round"
                 : "the main game"}{" "}
               with a score of {gameState.score}/100!
+              {gameState.isEnduranceMode && (
+                <span className="block text-red-400 font-bold mt-2">
+                  Incredible endurance - no extra lives, pure skill! 🏆
+                </span>
+              )}
             </p>
           </div>
 
@@ -811,11 +900,26 @@ export const Game: React.FC = () => {
         <div className="text-center max-w-4xl mx-auto">
           <div className="mb-8">
             <div className="text-6xl mb-4">💔</div>
-            <h1 className="text-5xl font-bold text-white mb-4">Game Over</h1>
+            <h1 className="text-5xl font-bold text-white mb-4">
+              {gameState.isEnduranceMode
+                ? "🔥 Endurance Challenge Over"
+                : "Game Over"}
+            </h1>
             <p className="text-xl text-gray-300 mb-8">
-              {gameState.lives <= 0
-                ? "You've run out of lives! Don't give up - try again or visit the store for more lives."
-                : `You scored ${gameState.score}/100. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`}
+              {gameState.isEnduranceMode ? (
+                <>
+                  {gameState.lives <= 0
+                    ? "You fought valiantly in endurance mode! Every question was a battle with only 3 lives and 20 seconds each."
+                    : `You scored ${gameState.score}/100 in endurance mode. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`}
+                  <span className="block text-orange-400 font-bold mt-2">
+                    Endurance mode: No mercy, pure skill! 💪
+                  </span>
+                </>
+              ) : gameState.lives <= 0 ? (
+                "You've run out of lives! Don't give up - try again or visit the store for more lives."
+              ) : (
+                `You scored ${gameState.score}/100. You need at least ${THRESHOLD_QUESTIONS} questions answered to be eligible for the leaderboard.`
+              )}
             </p>
           </div>
 
@@ -903,12 +1007,14 @@ export const Game: React.FC = () => {
                 >
                   Try Again
                 </button>
-                <button
-                  onClick={openStore}
-                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  Get More Lives
-                </button>
+                {!gameState.isEnduranceMode && (
+                  <button
+                    onClick={openStore}
+                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    Get More Lives
+                  </button>
+                )}
                 {/* Debug button for testing payment success */}
                 {import.meta.env.DEV && (
                   <button
@@ -1036,29 +1142,35 @@ export const Game: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-lg mr-1">⚡</span>
                 <span className="text-white text-sm font-medium">
-                  Stage {gameState.currentStage.id}
+                  {gameState.isEnduranceMode
+                    ? "Endurance"
+                    : `Stage ${gameState.currentStage.id}`}
                 </span>
               </div>
 
-              <div className="flex items-center">
-                <span className="text-lg mr-1">⏰</span>
-                <span className="text-white text-sm font-medium">
-                  {gameState.timeBank.totalSeconds}s
-                </span>
-                {gameState.timeBank.earnedThisQuestion > 0 && (
-                  <span className="ml-1 text-xs text-green-400 animate-pulse">
-                    +{gameState.timeBank.earnedThisQuestion}s
-                  </span>
-                )}
-              </div>
+              {!gameState.isEnduranceMode && (
+                <>
+                  <div className="flex items-center">
+                    <span className="text-lg mr-1">⏰</span>
+                    <span className="text-white text-sm font-medium">
+                      {gameState.timeBank.totalSeconds}s
+                    </span>
+                    {gameState.timeBank.earnedThisQuestion > 0 && (
+                      <span className="ml-1 text-xs text-green-400 animate-pulse">
+                        +{gameState.timeBank.earnedThisQuestion}s
+                      </span>
+                    )}
+                  </div>
 
-              <div className="flex items-center">
-                <span className="text-lg mr-1">🏆</span>
-                <span className="text-white text-sm font-medium">
-                  +{Math.floor(gameState.timeBank.totalSeconds / 4)}
-                </span>
-                <span className="text-xs text-gray-400 ml-1">bonus</span>
-              </div>
+                  <div className="flex items-center">
+                    <span className="text-lg mr-1">🏆</span>
+                    <span className="text-white text-sm font-medium">
+                      +{Math.floor(gameState.timeBank.totalSeconds / 4)}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-1">bonus</span>
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center">
                 <span className="text-lg mr-1">📊</span>
@@ -1092,32 +1204,34 @@ export const Game: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
-              {/* Trade Button */}
-              {Math.floor(gameState.timeBank.totalSeconds / 1000) > 0 && (
-                <button
-                  onClick={() => {
-                    const livesToBuy = Math.floor(
-                      gameState.timeBank.totalSeconds / 1000
-                    );
-                    if (livesToBuy > 0) {
-                      handleTradeTime(livesToBuy);
-                    }
-                  }}
-                  className="px-3 py-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-xs font-bold rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-1"
-                >
-                  <span>💰</span>
-                  Trade {Math.floor(gameState.timeBank.totalSeconds / 1000)}
-                </button>
-              )}
+            {!gameState.isEnduranceMode && (
+              <div className="flex items-center space-x-3">
+                {/* Trade Button */}
+                {Math.floor(gameState.timeBank.totalSeconds / 1000) > 0 && (
+                  <button
+                    onClick={() => {
+                      const livesToBuy = Math.floor(
+                        gameState.timeBank.totalSeconds / 1000
+                      );
+                      if (livesToBuy > 0) {
+                        handleTradeTime(livesToBuy);
+                      }
+                    }}
+                    className="px-3 py-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-xs font-bold rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-1"
+                  >
+                    <span>💰</span>
+                    Trade {Math.floor(gameState.timeBank.totalSeconds / 1000)}
+                  </button>
+                )}
 
-              <button
-                onClick={openStore}
-                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                Store
-              </button>
-            </div>
+                <button
+                  onClick={openStore}
+                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  Store
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1161,7 +1275,9 @@ export const Game: React.FC = () => {
         onAnswer={handleAnswer}
         questionNumber={gameState.currentQuestionIndex + 1}
         totalQuestions={gameState.questions.length}
-        timeLimit={gameState.currentStage.timeLimit}
+        timeLimit={
+          gameState.isEnduranceMode ? 20 : gameState.currentStage.timeLimit
+        }
       />
 
       {/* Stage Transition Animation */}

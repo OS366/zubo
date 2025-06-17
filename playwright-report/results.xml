@@ -1,55 +1,35 @@
-<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="2.4212580000000004">
-<testsuite name="game-flow.spec.ts" timestamp="2025-06-16T04:43:30.371Z" hostname="chromium" tests="1" failures="1" skipped="0" time="0.003" errors="0">
-<testcase name="should complete basic game flow" classname="game-flow.spec.ts" time="0.003">
-<failure message="game-flow.spec.ts:7:1 should complete basic game flow" type="FAILURE">
-<![CDATA[  [chromium] › game-flow.spec.ts:7:1 › should complete basic game flow ─────────────────────────────
-
-    Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium
-    ╔═════════════════════════════════════════════════════════════════════════╗
-    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
-    ║ Please run the following command to download new browsers:              ║
-    ║                                                                         ║
-    ║     npx playwright install                                              ║
-    ║                                                                         ║
-    ║ <3 Playwright Team                                                      ║
-    ╚═════════════════════════════════════════════════════════════════════════╝
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium
-    ╔═════════════════════════════════════════════════════════════════════════╗
-    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
-    ║ Please run the following command to download new browsers:              ║
-    ║                                                                         ║
-    ║     npx playwright install                                              ║
-    ║                                                                         ║
-    ║ <3 Playwright Team                                                      ║
-    ╚═════════════════════════════════════════════════════════════════════════╝
-
-    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/game-flow-should-complete-basic-game-flow-chromium-retry1/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/game-flow-should-complete-basic-game-flow-chromium-retry1/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium
-    ╔═════════════════════════════════════════════════════════════════════════╗
-    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
-    ║ Please run the following command to download new browsers:              ║
-    ║                                                                         ║
-    ║     npx playwright install                                              ║
-    ║                                                                         ║
-    ║ <3 Playwright Team                                                      ║
-    ╚═════════════════════════════════════════════════════════════════════════╝
-]]>
-</failure>
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="3.244593">
+<testsuite name="game-flow.spec.ts" timestamp="2025-06-17T22:54:44.011Z" hostname="Mobile Chrome" tests="1" failures="0" skipped="0" time="1.803" errors="0">
+<testcase name="should open store during gameplay" classname="game-flow.spec.ts" time="1.803">
 <system-out>
-<![CDATA[
-[[ATTACHMENT|../test-results/game-flow-should-complete-basic-game-flow-chromium-retry1/trace.zip]]
+<![CDATA[Browser console error: Warning: Unknown event handler property `%s`. It will be ignored.%s onSelectStart 
+    at div
+    at div
+    at Question (http://localhost:5173/src/components/Question.tsx:21:3)
+    at div
+    at Game (http://localhost:5173/src/components/Game.tsx:44:37)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:5455:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6188:3)
+    at div
+    at div
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6131:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:9149:3)
+    at App
+Browser console error: Warning: Received `%s` for a non-boolean attribute `%s`.
+
+If you want to write it to the DOM, pass a string instead: %s="%s" or %s={value.toString()}.%s true jsx jsx true jsx 
+    at style
+    at div
+    at Question (http://localhost:5173/src/components/Question.tsx:21:3)
+    at div
+    at Game (http://localhost:5173/src/components/Game.tsx:44:37)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:5455:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6188:3)
+    at div
+    at div
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6131:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:9149:3)
+    at App
 ]]>
 </system-out>
 </testcase>

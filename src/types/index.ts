@@ -43,6 +43,7 @@ export interface GameState {
   personaScores: Record<string, number>;
   gameStatus: 'playing' | 'success' | 'failure' | 'menu' | 'store' | 'challenge'; // added challenge status
   isChallengeRound: boolean; // new field to track if we're in the challenge round
+  isEnduranceMode: boolean; // new field for endurance mode
   leaderboardEligible: boolean; // new field to track if player is eligible for leaderboard
   perQuestionTimes: number[]; // seconds taken for each question
   questionTimings: QuestionTiming[]; // detailed timing information for each question
@@ -66,6 +67,7 @@ export interface LeaderboardEntry {
   completedAt: Date;
   timeTaken?: number; // in seconds
   isChallengeRound: boolean; // new field to track if score is from challenge round
+  endurance: boolean; // new field for endurance mode
   reachedLeaderboardThreshold: boolean; // new field to track if player reached 25 questions
   avatarUrl: string; // avatar/gravatar URL
   ageRange: string; // e.g., '10-19', '20-29', etc.

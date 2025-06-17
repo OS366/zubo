@@ -2,7 +2,7 @@
   "config": {
     "configFile": "/Users/sid/work/projects/zubo/playwright.config.ts",
     "rootDir": "/Users/sid/work/projects/zubo/src/test/e2e",
-    "forbidOnly": true,
+    "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
     "globalTeardown": null,
@@ -41,7 +41,7 @@
       {
         "outputDir": "/Users/sid/work/projects/zubo/test-results",
         "repeatEach": 1,
-        "retries": 2,
+        "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
@@ -57,7 +57,7 @@
       {
         "outputDir": "/Users/sid/work/projects/zubo/test-results",
         "repeatEach": 1,
-        "retries": 2,
+        "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
@@ -73,7 +73,7 @@
       {
         "outputDir": "/Users/sid/work/projects/zubo/test-results",
         "repeatEach": 1,
-        "retries": 2,
+        "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
@@ -89,7 +89,7 @@
       {
         "outputDir": "/Users/sid/work/projects/zubo/test-results",
         "repeatEach": 1,
-        "retries": 2,
+        "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
@@ -105,7 +105,7 @@
       {
         "outputDir": "/Users/sid/work/projects/zubo/test-results",
         "repeatEach": 1,
-        "retries": 2,
+        "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
@@ -123,11 +123,11 @@
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.53.0",
-    "workers": 1,
+    "workers": 4,
     "webServer": {
-      "command": "npx serve -s dist -l 5173",
+      "command": "npm run dev",
       "url": "http://localhost:5173",
-      "reuseExistingServer": false,
+      "reuseExistingServer": true,
       "timeout": 120000
     }
   },
@@ -139,93 +139,44 @@
       "line": 0,
       "specs": [
         {
-          "title": "should complete basic game flow",
-          "ok": false,
+          "title": "should open store during gameplay",
+          "ok": true,
           "tags": [],
           "tests": [
             {
               "timeout": 30000,
               "annotations": [],
               "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
+              "projectId": "Mobile Chrome",
+              "projectName": "Mobile Chrome",
               "results": [
                 {
                   "workerIndex": 0,
                   "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 1,
-                  "error": {
-                    "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
-                    "stack": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
-                  },
-                  "errors": [
+                  "status": "passed",
+                  "duration": 1803,
+                  "errors": [],
+                  "stdout": [
                     {
-                      "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      "text": "Browser console error: Warning: Unknown event handler property `%s`. It will be ignored.%s onSelectStart \n    at div\n    at div\n    at Question (http://localhost:5173/src/components/Question.tsx:21:3)\n    at div\n    at Game (http://localhost:5173/src/components/Game.tsx:44:37)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:5455:26)\n    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6188:3)\n    at div\n    at div\n    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6131:13)\n    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:9149:3)\n    at App\n"
+                    },
+                    {
+                      "text": "Browser console error: Warning: Received `%s` for a non-boolean attribute `%s`.\n\nIf you want to write it to the DOM, pass a string instead: %s=\"%s\" or %s={value.toString()}.%s true jsx jsx true jsx \n    at style\n    at div\n    at Question (http://localhost:5173/src/components/Question.tsx:21:3)\n    at div\n    at Game (http://localhost:5173/src/components/Game.tsx:44:37)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:5455:26)\n    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6188:3)\n    at div\n    at div\n    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:6131:13)\n    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=73e7e091:9149:3)\n    at App\n"
                     }
                   ],
-                  "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2025-06-16T04:43:30.743Z",
-                  "annotations": [],
-                  "attachments": []
-                },
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 1,
-                  "error": {
-                    "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
-                    "stack": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
-                  },
-                  "errors": [
-                    {
-                      "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
-                    }
-                  ],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 1,
-                  "startTime": "2025-06-16T04:43:31.102Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "/Users/sid/work/projects/zubo/test-results/game-flow-should-complete-basic-game-flow-chromium-retry1/trace.zip"
-                    }
-                  ]
-                },
-                {
-                  "workerIndex": 2,
-                  "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 1,
-                  "error": {
-                    "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
-                    "stack": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
-                  },
-                  "errors": [
-                    {
-                      "message": "Error: browserType.launch: Executable doesn't exist at /Users/sid/Library/Caches/ms-playwright/chromium-1178/chrome-mac/Chromium.app/Contents/MacOS/Chromium\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
-                    }
-                  ],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 2,
-                  "startTime": "2025-06-16T04:43:31.458Z",
+                  "startTime": "2025-06-17T22:54:44.405Z",
                   "annotations": [],
                   "attachments": []
                 }
               ],
-              "status": "unexpected"
+              "status": "expected"
             }
           ],
-          "id": "0fbb7ab0159cb77a184f-be1ab5d59164315f2c3c",
+          "id": "0fbb7ab0159cb77a184f-466407091587a4f4cc27",
           "file": "game-flow.spec.ts",
-          "line": 7,
+          "line": 54,
           "column": 1
         }
       ]
@@ -233,11 +184,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-06-16T04:43:29.060Z",
-    "duration": 2421.2580000000003,
-    "expected": 0,
+    "startTime": "2025-06-17T22:54:43.114Z",
+    "duration": 3244.593,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }
