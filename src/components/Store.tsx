@@ -71,7 +71,7 @@ export const Store: React.FC<StoreProps> = ({ onBack, currentLevel = 0 }) => {
       console.error("Error creating checkout session:", error);
 
       // For development/testing: provide a fallback demo flow
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env.DEV) {
         const demoMode = confirm(
           `API not available. Would you like to simulate a successful purchase of ${lives} lives?\n\n(This is only for development testing)`
         );

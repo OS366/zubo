@@ -25,7 +25,7 @@ import { Heart, Trophy, Star, Sparkles } from "lucide-react";
 import logo from "../assets/logo.png";
 
 const THRESHOLD_QUESTIONS =
-  Number(process.env.REACT_APP_THRESHOLD_QUESTIONS) || 5;
+  Number(import.meta.env.VITE_THRESHOLD_QUESTIONS) || 5;
 
 export const Game: React.FC = () => {
   // Initialize game state from localStorage if available
@@ -910,7 +910,7 @@ export const Game: React.FC = () => {
                   Get More Lives
                 </button>
                 {/* Debug button for testing payment success */}
-                {process.env.NODE_ENV === "development" && (
+                {import.meta.env.DEV && (
                   <button
                     onClick={() => {
                       console.log("Simulating payment success with 5 lives");

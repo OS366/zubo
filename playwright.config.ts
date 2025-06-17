@@ -71,10 +71,12 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: process.env.CI ? {
-    command: 'npx serve -s dist -l 5173',
+    command: 'npx serve -s dist -l 5173 --cors',
     url: 'http://localhost:5173',
     reuseExistingServer: false,
     timeout: 120 * 1000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   } : {
     command: 'npm run dev',
     url: 'http://localhost:5173',
