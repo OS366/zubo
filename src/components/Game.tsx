@@ -70,6 +70,7 @@ export const Game: React.FC = () => {
   const [savingToLeaderboard, setSavingToLeaderboard] = useState(false);
   const [visualSurprise] = useState(false);
   const [sessionStart, setSessionStart] = useState<Date | null>(null);
+  const [sessionEnd, setSessionEnd] = useState<Date | null>(null);
 
   const [userAttempts, setUserAttempts] = useState<number | null>(null);
   const [userRank, setUserRank] = useState<number | null>(null);
@@ -276,6 +277,7 @@ export const Game: React.FC = () => {
     }));
     setGameStartTime(new Date());
     setSessionStart(new Date());
+    setSessionEnd(null);
     setLeaderboardSaved(false);
   }, []);
 
@@ -304,6 +306,7 @@ export const Game: React.FC = () => {
     }));
     setGameStartTime(new Date());
     setSessionStart(new Date());
+    setSessionEnd(null);
     setLeaderboardSaved(false);
   }, []);
 
@@ -396,6 +399,8 @@ export const Game: React.FC = () => {
 
         // Check game end conditions
         if (newLives <= 0) {
+          // Set session end time when game fails
+          setSessionEnd(new Date());
           return {
             ...prev,
             score: newScore,
@@ -411,7 +416,8 @@ export const Game: React.FC = () => {
           };
         }
         if (newAnsweredQuestions >= 100) {
-          // Updated to 100 questions
+          // Set session end time when game succeeds
+          setSessionEnd(new Date());
           return {
             ...prev,
             score: newScore,
@@ -546,6 +552,10 @@ export const Game: React.FC = () => {
       timeBank: initializeTimeBank(),
       currentStage: GAME_STAGES[0],
     });
+
+    // Reset session tracking
+    setSessionStart(null);
+    setSessionEnd(null);
   };
 
   const handleTradeTime = useCallback((livesToBuy: number) => {
