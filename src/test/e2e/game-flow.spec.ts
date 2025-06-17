@@ -58,8 +58,8 @@ test('should open store during gameplay', async ({ page }) => {
   // Wait for game to load
   await expect(page.locator('.question-container')).toBeVisible({ timeout: 10000 });
   
-  // Click store button
-  await page.getByText('Store').click();
+  // Click store button using more specific selector to avoid mobile click interception
+  await page.locator('button:has-text("Store")').click({ force: true });
   
   // Should show store
   await expect(page.getByText('Life Store')).toBeVisible({ timeout: 10000 });
