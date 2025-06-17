@@ -26,7 +26,7 @@ export const Question: React.FC<QuestionProps> = ({
   timeLimit = 60, // Default to 60 seconds if not provided
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showTimer, setShowTimer] = useState(false); // Hidden timer - users don't see countdown
+  const [showTimer, setShowTimer] = useState(true); // Show timer by default
   const [showCountdown, setShowCountdown] = useState(false);
   const [countdownNumber, setCountdownNumber] = useState(5);
   const startTimeRef = useRef<Date>(new Date());
@@ -36,7 +36,7 @@ export const Question: React.FC<QuestionProps> = ({
   // Reset state when question changes and record start time
   useEffect(() => {
     setSelectedAnswer(null);
-    setShowTimer(false); // Hidden timer - users don't see countdown
+    setShowTimer(true); // Show timer for all questions
     setShowCountdown(false);
     setCountdownNumber(5);
     startTimeRef.current = new Date();
@@ -57,7 +57,7 @@ export const Question: React.FC<QuestionProps> = ({
       }, countdownStartTime);
     }
 
-    // Set hidden timeout for time limit
+    // Set timeout for time limit
     timeoutRef.current = setTimeout(() => {
       handleTimeout();
     }, timeLimit * 1000);
@@ -91,6 +91,9 @@ export const Question: React.FC<QuestionProps> = ({
 
   const handleAnswer = React.useCallback(
     (index: number, wasTimeout: boolean = false) => {
+      // Prevent multiple answers
+      if (selectedAnswer !== null) return;
+
       // Clear all timeouts when user answers
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -118,11 +121,12 @@ export const Question: React.FC<QuestionProps> = ({
         onAnswer(index, timingData);
       }, 500);
     },
-    [onAnswer]
+    [onAnswer, selectedAnswer]
   );
 
   const handleTimeout = React.useCallback(() => {
     setShowTimer(false);
+    setShowCountdown(false);
 
     const endTime = new Date();
     const timeTaken = endTime.getTime() - startTimeRef.current.getTime();
@@ -265,13 +269,13 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Countdown Animation */}
       {showCountdown && (
-        <div className="fixed inset-0 z-[60] pointer-events-none">
+        <div className="fixed inset-0 z-30 pointer-events-none">
           {/* Background overlay - non-blocking */}
           <div className="absolute inset-0 bg-red-900/20 animate-pulse pointer-events-none" />
 
           {/* Countdown number - centered */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="relative">
+            <div className="relative pointer-events-none">
               <div
                 className="text-9xl font-bold text-red-500 animate-bounce drop-shadow-2xl pointer-events-none"
                 style={{
@@ -299,7 +303,7 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Question Card */}
       <div
-        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none relative z-20"
+        className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 select-none relative z-40"
         onCopy={preventClipboardOperations}
         onPaste={preventClipboardOperations}
         onCut={preventClipboardOperations}
