@@ -269,7 +269,7 @@ export const Question: React.FC<QuestionProps> = ({
 
       {/* Countdown Animation */}
       {showCountdown && (
-        <div className="fixed inset-0 z-30 pointer-events-none">
+        <div className="fixed inset-0 z-[9999] pointer-events-none">
           {/* Background overlay - non-blocking */}
           <div className="absolute inset-0 bg-red-900/20 animate-pulse pointer-events-none" />
 
