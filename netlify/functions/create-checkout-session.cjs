@@ -10,7 +10,13 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    // Log the Stripe key prefix to verify we're using the correct key
+    console.log('Stripe key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
+    
     const { priceId, lives, currentLevel } = JSON.parse(event.body);
+    
+    // Log the incoming request data
+    console.log('Request data:', { priceId, lives, currentLevel });
 
     if (!priceId || !lives) {
       return {
@@ -58,12 +64,21 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ url: session.url }),
     };
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    // Enhanced error logging
+    console.error('Error creating checkout session:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      stack: error.stack
+    });
+    
     return {
       statusCode: 500,
       body: JSON.stringify({ 
         error: 'Failed to create checkout session',
-        details: error.message 
+        details: error.message,
+        type: error.type,
+        code: error.code
       }),
     };
   }

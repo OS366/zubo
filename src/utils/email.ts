@@ -23,14 +23,11 @@ export async function sendLeaderboardEmail({
         <div style="margin-bottom: 16px;">
           <strong>Lives Remaining:</strong> ${lives}
         </div>
-        <p style="margin: 0 0 16px 0;">Thank you for playing Zubo and being part of our journey.<br/>— David Labs</p>
+        <p style="margin: 0 0 16px 0;">Thank you for playing Zubo and being part of our journey.<br/>— The David Labs Team</p>
         <hr style="border: none; border-top: 1px solid #333; margin: 24px 0;" />
-        <div style="font-size: 12px; color: #aaa;">This email was sent by Zubo (zubo@davidlabs.ca)</div>
+        <div style="font-size: 12px; color: #aaa;">This email was sent by Zubo (zubo@davidlabs.ca) — Visit us at <a href='https://davidlabs.ca/zubo' style='color: #a78bfa;'>davidlabs.ca/zubo</a></div>
       </div>
     </div>
-  `;
-  // Example: POST to your email API endpoint
-  // await fetch('/api/send-email', { method: 'POST', body: JSON.stringify({ to, subject, html }) });
-  // For now, just log
+  `
   console.log('Would send email to', to, 'with HTML:', html);
-} 
+}

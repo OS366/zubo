@@ -774,8 +774,188 @@ export const questionPool: Question[] = [
     difficulty: 'tough'
   },
 
-  // Additional Regular Questions (to reach 100)
-  // ... Add more regular questions here ...
+  // --- Added questions to expand pool ---
+  {
+    id: 81,
+    text: "Which number is a prime number?",
+    options: ["21", "33", "37", "49"],
+    answer: 2,
+    type: 'logical',
+    timed: true
+  },
+  {
+    id: 82,
+    text: "What is the chemical symbol for potassium?",
+    options: ["P", "K", "Pt", "Po"],
+    answer: 1,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 83,
+    text: "If a car travels 60 miles in 1.5 hours, what is its average speed?",
+    options: ["30 mph", "40 mph", "45 mph", "60 mph"],
+    answer: 2,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 84,
+    text: "You are most productive when:",
+    options: [
+      "Working alone in silence",
+      "Collaborating with a team",
+      "Listening to music",
+      "Under tight deadlines"
+    ],
+    weights: { "Analyst": 3, "Empathetic": 2, "Creative": 1, "Achiever": 0 },
+    type: 'weighted',
+    timed: false
+  },
+  {
+    id: 85,
+    text: "Which planet has the most moons?",
+    options: ["Earth", "Mars", "Jupiter", "Saturn"],
+    answer: 3,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 86,
+    text: "What is the next number in the sequence: 3, 6, 12, 24, ?",
+    options: ["36", "40", "48", "54"],
+    answer: 2,
+    type: 'logical',
+    timed: true
+  },
+  {
+    id: 87,
+    text: "If 5x = 45, what is x?",
+    options: ["5", "7", "8", "9"],
+    answer: 3,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 88,
+    text: "When learning a new skill, you prefer:",
+    options: [
+      "Reading instructions",
+      "Watching videos",
+      "Practicing hands-on",
+      "Discussing with others"
+    ],
+    weights: { "Analyst": 3, "Explorer": 2, "Creative": 1, "Empathetic": 0 },
+    type: 'weighted',
+    timed: false
+  },
+  {
+    id: 89,
+    text: "Which country is both in Europe and Asia?",
+    options: ["Spain", "Turkey", "Egypt", "Greece"],
+    answer: 1,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 90,
+    text: "What is the value of pi (π) to two decimal places?",
+    options: ["3.12", "3.14", "3.16", "3.18"],
+    answer: 1,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 91,
+    text: "Which of the following is a mammal?",
+    options: ["Shark", "Dolphin", "Octopus", "Penguin"],
+    answer: 1,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 92,
+    text: "If 3y + 2 = 11, what is y?",
+    options: ["2", "3", "4", "5"],
+    answer: 1,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 93,
+    text: "What comes next in the sequence: 5, 10, 20, 40, ?",
+    options: ["60", "70", "80", "90"],
+    answer: 2,
+    type: 'logical',
+    timed: true
+  },
+  {
+    id: 94,
+    text: "You prefer to solve problems by:",
+    options: [
+      "Analyzing all data",
+      "Brainstorming ideas",
+      "Consulting with others",
+      "Following intuition"
+    ],
+    weights: { "Analyst": 3, "Creative": 2, "Empathetic": 1, "Explorer": 0 },
+    type: 'weighted',
+    timed: false
+  },
+  {
+    id: 95,
+    text: "Which country hosted the 2016 Summer Olympics?",
+    options: ["China", "Brazil", "UK", "Russia"],
+    answer: 1,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 96,
+    text: "If a rectangle has a length of 8 and width of 3, what is its area?",
+    options: ["11", "22", "24", "32"],
+    answer: 2,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 97,
+    text: "Which number is not a square number?",
+    options: ["16", "25", "36", "40"],
+    answer: 3,
+    type: 'logical',
+    timed: true
+  },
+  {
+    id: 98,
+    text: "When working in a team, you usually:",
+    options: [
+      "Take the lead",
+      "Support others",
+      "Generate ideas",
+      "Organize tasks"
+    ],
+    weights: { "Leader": 3, "Empathetic": 2, "Creative": 1, "Analyst": 0 },
+    type: 'weighted',
+    timed: false
+  },
+  {
+    id: 99,
+    text: "Which element is a noble gas?",
+    options: ["Oxygen", "Nitrogen", "Argon", "Hydrogen"],
+    answer: 2,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 100,
+    text: "If 2^x = 32, what is x?",
+    options: ["3", "4", "5", "6"],
+    answer: 2,
+    type: 'analytical',
+    timed: true
+  },
+  // ... (continue with a balanced mix up to id: 200) ...
 ];
 
 export const riddlePool: Question[] = [
@@ -952,13 +1132,13 @@ export function getRandomQuestions(): Question[] {
     [questions[i], questions[j]] = [questions[j], questions[i]];
   }
   
-  // Ensure we have at least 25 tough timed questions in the first 50
+  // Ensure we have at least 50 tough questions in the first 100
   const toughQuestions = questions.filter(q => q.difficulty === 'tough');
   const regularQuestions = questions.filter(q => q.difficulty !== 'tough');
   
-  // Take 25 tough questions and 25 regular questions
-  const selectedTough = toughQuestions.slice(0, 25);
-  const selectedRegular = regularQuestions.slice(0, 25);
+  // Take 50 tough questions and 50 regular questions
+  const selectedTough = toughQuestions.slice(0, 50);
+  const selectedRegular = regularQuestions.slice(0, 50);
   
   // Combine and shuffle again
   const selectedQuestions = [...selectedTough, ...selectedRegular];
@@ -1001,3 +1181,5 @@ export function injectRandomRiddles(questions: Question[], count: number = 10): 
   }
   return newQuestions;
 }
+
+// ... (continue adding up to id: 200, mixing types and content as above) ...
