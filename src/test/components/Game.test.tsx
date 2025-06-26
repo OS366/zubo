@@ -112,8 +112,8 @@ describe("Game Component", () => {
       expect(
         screen.getByText(/Welcome to the Zubo Challenge/)
       ).toBeInTheDocument();
-      expect(screen.getByText("Play the Challenge")).toBeInTheDocument();
-      expect(screen.getByText("Game Rules")).toBeInTheDocument();
+      expect(screen.getByText("Play Normal Mode")).toBeInTheDocument();
+      expect(screen.getByText("🔥 Endurance Mode")).toBeInTheDocument();
     });
 
     it("shows game rules correctly", () => {
@@ -124,7 +124,7 @@ describe("Game Component", () => {
         screen.getByText("Score 75+ out of 100 to succeed")
       ).toBeInTheDocument();
       expect(
-        screen.getByText("4 stages with increasing difficulty")
+        screen.getByText("4 stages with dynamic timing")
       ).toBeInTheDocument();
     });
 
@@ -132,7 +132,7 @@ describe("Game Component", () => {
       const user = userEvent.setup();
       render(<Game />);
 
-      const playButton = screen.getByText("Play the Challenge");
+      const playButton = screen.getByText("Play Normal Mode");
       await user.click(playButton);
 
       await waitFor(() => {
@@ -149,7 +149,7 @@ describe("Game Component", () => {
       const user = userEvent.setup();
       render(<Game />);
 
-      const playButton = screen.getByText("Play the Challenge");
+      const playButton = screen.getByText("Play Normal Mode");
       await user.click(playButton);
 
       await waitFor(() => {
@@ -226,7 +226,7 @@ describe("Game Component", () => {
       render(<Game />);
 
       // Start game first
-      const playButton = screen.getByText("Play the Challenge");
+      const playButton = screen.getByText("Play Normal Mode");
       await user.click(playButton);
 
       await waitFor(() => {
@@ -247,7 +247,7 @@ describe("Game Component", () => {
       const user = userEvent.setup();
       render(<Game />);
 
-      const playButton = screen.getByText("Play the Challenge");
+      const playButton = screen.getByText("Play Normal Mode");
       await user.click(playButton);
 
       await waitFor(() => {
@@ -274,7 +274,7 @@ describe("Game Component", () => {
       const user = userEvent.setup();
       render(<Game />);
 
-      const playButton = screen.getByText("Play the Challenge");
+      const playButton = screen.getByText("Play Normal Mode");
       await user.click(playButton);
 
       await waitFor(() => {
@@ -356,7 +356,8 @@ describe("Game Component", () => {
       expect(
         screen.getByText(/Welcome to the Zubo Challenge/)
       ).toBeInTheDocument();
-      expect(screen.getByText("Play the Challenge")).toBeInTheDocument();
+      expect(screen.getByText("Play Normal Mode")).toBeInTheDocument();
+      expect(screen.getByText("🔥 Endurance Mode")).toBeInTheDocument();
     });
   });
 });
