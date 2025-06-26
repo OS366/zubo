@@ -955,7 +955,46 @@ export const questionPool: Question[] = [
     type: 'analytical',
     timed: true
   },
-  // ... (continue with a balanced mix up to id: 200) ...
+  {
+    id: 101,
+    text: "What is the capital of Japan?",
+    options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+    answer: 2,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 102,
+    text: "What is the square root of 169?",
+    options: ["11", "12", "13", "14"],
+    answer: 2,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 103,
+    text: "Which gas makes up most of Earth's atmosphere?",
+    options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"],
+    answer: 2,
+    type: 'gk',
+    timed: false
+  },
+  {
+    id: 104,
+    text: "What is 15% of 80?",
+    options: ["10", "12", "14", "16"],
+    answer: 1,
+    type: 'analytical',
+    timed: true
+  },
+  {
+    id: 105,
+    text: "Which of these is a primary color?",
+    options: ["Green", "Orange", "Purple", "Blue"],
+    answer: 3,
+    type: 'gk',
+    timed: false
+  }
 ];
 
 export const riddlePool: Question[] = [
