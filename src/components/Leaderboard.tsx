@@ -208,10 +208,11 @@ export const Leaderboard: React.FC = () => {
 
         <div className="bg-gray-800 rounded-3xl p-8 border border-gray-700 shadow-2xl">
           {/* Header */}
-          <div className="grid grid-cols-7 gap-4 mb-4 text-gray-400 font-medium px-4">
+          <div className="grid grid-cols-8 gap-4 mb-4 text-gray-400 font-medium px-4">
             <div className="text-center">#</div>
             <div className="col-span-2">Player</div>
             <div className="text-center">Score</div>
+            <div className="text-center">Mode</div>
             <div className="text-center">Persona</div>
             <div className="text-center">Questions</div>
             <div className="text-center flex items-center justify-center gap-1">
@@ -225,7 +226,7 @@ export const Leaderboard: React.FC = () => {
             {topEntries.map((entry, index) => (
               <div
                 key={entry.id}
-                className={`grid grid-cols-7 gap-4 items-center p-4 rounded-xl transition-colors ${
+                className={`grid grid-cols-8 gap-4 items-center p-4 rounded-xl transition-colors ${
                   index === 0
                     ? "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30"
                     : index === 1
@@ -261,6 +262,19 @@ export const Leaderboard: React.FC = () => {
                   <div className="text-xl font-bold text-white">
                     {entry.score}
                   </div>
+                </div>
+
+                {/* Mode */}
+                <div className="text-center">
+                  {entry.endurance ? (
+                    <div className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
+                      🔥 Endurance
+                    </div>
+                  ) : (
+                    <div className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300">
+                      Normal
+                    </div>
+                  )}
                 </div>
 
                 {/* Persona */}
