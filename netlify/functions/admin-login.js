@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY // Use service role for secure server-side access
 );
 
-exports.handler = async (event) => {
+module.exports.handler = async (event) => {
   console.log('Admin login function called with method:', event.httpMethod);
   console.log('Event:', JSON.stringify(event, null, 2));
   

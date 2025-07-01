@@ -133,7 +133,7 @@ const Admin: React.FC = () => {
     setLoginLoading(true);
     setLoginError(null);
     try {
-      const res = await fetch("/.netlify/functions/admin-login.cjs", {
+      const res = await fetch("/.netlify/functions/admin-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginForm),
