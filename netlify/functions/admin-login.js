@@ -38,7 +38,10 @@ module.exports.handler = async (event) => {
 
   try {
     const { username, password, acceptance_code } = JSON.parse(event.body || '{}');
+    console.log('Received credentials:', { username, password: password ? '[HIDDEN]' : 'MISSING', acceptance_code });
+    
     if (!username || !password || !acceptance_code) {
+      console.log('Missing credentials:', { hasUsername: !!username, hasPassword: !!password, hasCode: !!acceptance_code });
       return {
         statusCode: 400,
         headers: {
@@ -50,13 +53,15 @@ module.exports.handler = async (event) => {
     }
 
     // Query Supabase for the admin user
+    console.log('Querying Supabase for username:', username);
     const { data, error } = await supabase
       .from('zubo_admin')
       .select('*')
       .eq('username', username)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      console.log('Supabase error:', error);
       return {
         statusCode: 401,
         headers: {
@@ -67,9 +72,27 @@ module.exports.handler = async (event) => {
       };
     }
 
+    if (!data) {
+      console.log('No user found for username:', username);
+      return {
+        statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ error: 'Invalid credentials' }),
+      };
+    }
+
+    console.log('User found:', { username: data.username, hasPasswordHash: !!data.password_hash, acceptanceCode: data.acceptance_code });
+
     // Check password
+    console.log('Comparing password with hash...');
     const passwordMatch = await bcrypt.compare(password, data.password_hash);
+    console.log('Password match result:', passwordMatch);
+    
     if (!passwordMatch) {
+      console.log('Password does not match');
       return {
         statusCode: 401,
         headers: {
@@ -81,7 +104,10 @@ module.exports.handler = async (event) => {
     }
 
     // Check acceptance code
+    console.log('Checking acceptance code:', { provided: acceptance_code, stored: data.acceptance_code, match: data.acceptance_code === acceptance_code });
+    
     if (data.acceptance_code !== acceptance_code) {
+      console.log('Acceptance code does not match');
       return {
         statusCode: 401,
         headers: {
