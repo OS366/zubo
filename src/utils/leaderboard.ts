@@ -34,8 +34,8 @@ function getAvatarUrl(email: string) {
   }
   const seed = Math.abs(hash).toString();
   
-  // Use avataaars style which is more reliable and human-like
-  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+  // Use PNG format which is more reliable in emails
+  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&radius=50&size=200`;
   console.log('Generated avatar URL for', cleanEmail, ':', avatarUrl);
   return avatarUrl;
 }

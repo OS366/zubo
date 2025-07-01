@@ -12,6 +12,7 @@ import { Trophy } from "lucide-react";
 import Footer from "./components/Footer";
 import boltLogo from "./assets/bolt-logo.png"; // PNG import
 import Home from "./components/Home";
+import Admin from "./components/Admin";
 
 function App() {
   const location = useLocation();
@@ -61,6 +62,7 @@ function App() {
           <Route path="/about" element={<Home />} />
           <Route path="/game" element={<Game key={location.key} />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </div>
       <Footer />

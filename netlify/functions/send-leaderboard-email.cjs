@@ -62,7 +62,19 @@ exports.handler = async (event) => {
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-          <img src="${avatarUrl}" alt="Your Avatar" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #ffffff; margin-bottom: 20px; background: #fff;" />
+          <!-- Avatar with better fallback handling -->
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+            <tr>
+              <td>
+                <img src="${avatarUrl}" 
+                     alt="Your Avatar" 
+                     width="100" 
+                     height="100"
+                     style="display: block; width: 100px; height: 100px; border-radius: 50%; border: 4px solid #ffffff; margin-bottom: 20px; background: #fff;"
+                     onerror="this.onerror=null; this.src='https://api.dicebear.com/7.x/avataaars/png?seed=fallback';" />
+              </td>
+            </tr>
+          </table>
           <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">🎉 Congratulations, ${firstName}!</h1>
           <p style="color: #e5e7eb; margin: 10px 0 0 0; font-size: 18px;">You've made it to the Zubo Leaderboard!</p>
         </div>

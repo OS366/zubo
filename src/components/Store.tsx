@@ -122,12 +122,12 @@ export const Store: React.FC<StoreProps> = ({ onBack, currentLevel = 0 }) => {
               <div
                 key={pkg.id}
                 className={`relative bg-gray-800 rounded-3xl p-8 shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 ${
-                  pkg.popular ? "ring-2 ring-purple-500" : ""
+                  pkg.popular ? "ring-2 ring-purple-500 mt-6" : ""
                 }`}
               >
                 {pkg.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full text-sm font-bold">
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-10">
+                    <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                       Most Popular
                     </span>
                   </div>

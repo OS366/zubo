@@ -7,8 +7,12 @@ const supabase = createClient(
 );
 
 exports.handler = async (event) => {
+  console.log('Admin login function called with method:', event.httpMethod);
+  console.log('Event:', JSON.stringify(event, null, 2));
+  
   // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
+    console.log('Handling OPTIONS request');
     return {
       statusCode: 200,
       headers: {
@@ -21,9 +25,14 @@ exports.handler = async (event) => {
   }
 
   if (event.httpMethod !== 'POST') {
+    console.log('Method not allowed:', event.httpMethod);
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ error: 'Method not allowed', method: event.httpMethod }),
     };
   }
 

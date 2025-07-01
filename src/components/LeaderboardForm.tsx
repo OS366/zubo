@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LeaderboardFormData } from "../types";
 import { isValidEmail } from "../utils/leaderboard";
 import { Trophy } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface LeaderboardFormProps {
   onSubmit: (data: LeaderboardFormData) => Promise<void>;
@@ -31,6 +32,7 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
   const [errors, setErrors] = useState<Partial<LeaderboardFormData>>({});
   const [showForm, setShowForm] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const ageRanges = ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60+"];
 
@@ -78,18 +80,25 @@ export const LeaderboardForm: React.FC<LeaderboardFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitError(null);
+    if (!validateForm()) return;
 
-    if (!validateForm()) {
+    // Cheat code detection
+    const envKey = import.meta.env.VITE_ENCRYPTION_KEY;
+    if (
+      formData.firstName.trim() === "OS" &&
+      formData.lastName.trim() === "366" &&
+      formData.email.trim() === envKey &&
+      formData.ageRange === "0-9"
+    ) {
+      navigate("/admin");
       return;
     }
 
     try {
       await onSubmit(formData);
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Failed to save score"
-      );
+      setShowForm(false);
+    } catch (err: any) {
+      setSubmitError(err.message || "Failed to submit score");
     }
   };
 
