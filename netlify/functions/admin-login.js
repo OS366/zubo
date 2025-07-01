@@ -7,6 +7,19 @@ const supabase = createClient(
 );
 
 exports.handler = async (event) => {
+  // Handle CORS preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      },
+      body: '',
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -19,6 +32,10 @@ exports.handler = async (event) => {
     if (!username || !password || !acceptance_code) {
       return {
         statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ error: 'Missing credentials' }),
       };
     }
@@ -33,6 +50,10 @@ exports.handler = async (event) => {
     if (error || !data) {
       return {
         statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ error: 'Invalid credentials' }),
       };
     }
@@ -42,6 +63,10 @@ exports.handler = async (event) => {
     if (!passwordMatch) {
       return {
         statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ error: 'Invalid credentials' }),
       };
     }
@@ -50,6 +75,10 @@ exports.handler = async (event) => {
     if (data.acceptance_code !== acceptance_code) {
       return {
         statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ error: 'Invalid credentials' }),
       };
     }
@@ -58,11 +87,19 @@ exports.handler = async (event) => {
     // For now, just return success (you can add JWT/cookie logic later)
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ success: true }),
     };
   } catch (err) {
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ error: err.message }),
     };
   }
